@@ -1,0 +1,55 @@
+{
+  "pluginAlias": "MH-AC-WIFI-1",
+  "pluginType": "platform",
+  "singular": true,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "username": {
+        "title": "Username",
+        "type": "string",
+        "required": true,
+        "default": "admin"
+      },
+      "password": {
+        "title": "Password",
+        "type": "string",
+        "required": true,
+        "default": "admin"
+      },
+      "devices": {
+        "title": "Manual List Of Devices",
+        "type": "array",
+        "items": {
+          "title": "Device",
+          "type": "object",
+          "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string",
+              "required": true,
+              "default": "My Aircon"
+            },
+            "host": {
+              "title": "Host/IP",
+              "type": "string",
+              "required": true
+            },
+            "username": {
+              "title": "Username (optional)",
+              "type": "string",
+              "required": false,
+              "default": ""
+            },
+            "password": {
+              "title": "Password (optional)",
+              "type": "string",
+              "required": false,
+              "default": ""
+            }
+          }
+        }
+      }
+    }
+  }
+}

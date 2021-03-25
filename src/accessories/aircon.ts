@@ -1,6 +1,6 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import { MHACWIFI1, MhacModeTypes } from './device';
-import { MitsubishHeavyAirconPlatform } from '../platform';
+import { MitsubishiHeavyAirconPlatform } from '../platform';
 
 export class Aircon {
 
@@ -8,7 +8,7 @@ export class Aircon {
     private debounce: any = { speed: null };
 
     constructor(
-        private readonly platform: MitsubishHeavyAirconPlatform,
+        private readonly platform: MitsubishiHeavyAirconPlatform,
         private readonly accessory: PlatformAccessory,
         private readonly device: MHACWIFI1
     ) {
@@ -90,7 +90,7 @@ export class Aircon {
         let hw_value = Math.ceil(value as number / 25);
         this.platform.log.debug(`Set characteristic ${service}.RotationSpeed -> ${hw_value}`);
         clearTimeout(this.debounce.speed)
-        this.debounce.speed = setTimeout(() => { console.log(`setting hw to ${hw_value}`); this.device.set.fanSpeed(hw_value); }, 500);
+        this.debounce.speed = setTimeout(() => { this.platform.log.debug(`setting hw to ${hw_value}`); this.device.set.fanSpeed(hw_value); }, 500);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     getSwingMode(): number {

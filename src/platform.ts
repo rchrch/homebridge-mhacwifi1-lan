@@ -1,88 +1,135 @@
-import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
-
+import { API, APIEvent, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
+import { MHACWIFI1 } from './accessories/device';
+import { MHACAccessory, MHACConfig } from './accessory';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { MHACAccessory } from './accessory';
+
+
+const DISCOVER_DELAY = 10000;
+
 
 /**
- * HomebridgePlatform
- * This class is the main constructor for your plugin, this is where you should
- * parse the user config and discover/register accessories with Homebridge.
+ * MitsubishiHeavyAirconPlatform
+ *
+ * TODO: add description
  */
-export class MitsubishHeavyAirconPlatform implements DynamicPlatformPlugin {
-  public readonly Service: typeof Service = this.api.hap.Service;
-  public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
+export class MitsubishiHeavyAirconPlatform implements DynamicPlatformPlugin {
+    public readonly Service: typeof Service = this.api.hap.Service;
+    public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
 
-  // this is used to track restored cached accessories
-  public readonly accessories: PlatformAccessory[] = [];
+    // this is used to track restored cached accessories
+    public readonly accessories: PlatformAccessory[] = [];
 
-  constructor(
-    public readonly log: Logger,
-    public readonly config: PlatformConfig,
-    public readonly api: API,
-  ) {
-    this.log.debug('Finished initializing platform:', this.config.name);
+    private devices_to_find = [];
 
-    // When this event is fired it means Homebridge has restored all cached accessories from disk.
-    // Dynamic Platform plugins should only register new accessories after this event was fired,
-    // in order to ensure they weren't added to homebridge already. This event can also be used
-    // to start discovery of new accessories.
-    this.api.on('didFinishLaunching', () => {
-      log.debug('Executed didFinishLaunching callback');
-      // run the method to discover / register your devices as accessories
-      this.discoverDevices();
-    });
-  }
+    constructor(
+        public readonly log: Logger,
+        public readonly config: PlatformConfig,
+        public readonly api: API,
+    ) {
+      this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => {
+         this.discoverDevices();
+      });
+    }
 
-  /**
-   * This function is invoked when homebridge restores cached accessories from disk at startup.
-   * It should be used to setup event handlers for characteristics and update respective values.
-   */
-  configureAccessory(accessory: PlatformAccessory) {
-    this.log.info('Loading accessory from cache:', accessory.displayName);
+    /**
+     * This function is invoked when homebridge restores cached accessories from disk at startup.
+     * It should be used to setup event handlers for characteristics and update respective values.
+     */
+    configureAccessory(accessory: PlatformAccessory) {
+        this.log.info('Loading accessory from cache:', accessory.displayName);
+        this.accessories.push(accessory);
+    }
 
-    // add the restored accessory to the accessories cache so we can track if it has already been registered
-    this.accessories.push(accessory);
-  }
+    async discoverDevices() {
 
-  discoverDevices() {
+        this.log.info('Configuring devices')
+        this.log.debug(this.config.devices)
+        if (!this.config.devices) {
+          this.log.info('No devices defined - add devices to the config')
+          return
+        }
 
-    // TODO: Use device dicovery based on OIN
-    console.log(this.config.devices);
+        for (const config of this.config.devices) {
+          if (!config.username) {
+            config.username = this.config.username
+          }
+          if (!config.password) {
+            config.password = this.config.password
+          }
+          setImmediate(() => { this.discoverDevice(config) });
+        }
 
-    // loop over the discovered devices and register each one if it has not already been registered
-    for (const config of this.config.devices) {
+        /*
+        TODO: implement discovery
+        var browser = bonjour.find({
+          type: ''
+        }, function(result) {
+          if (result.txt) {
+            for (const address of result.addresses) {
+              console.log("%s, %s, %s,  %s:%s", result.type, result.name, result.txt.md, address, result.port);
+            }
+          } else {
+            console.log("Unsupported device found, skipping", result.name);
+          }
+        });*/
 
+    }
+
+    async discoverDevice(config: MHACConfig) {
+      this.log.info(`Checking for device at ${config.host}`)
+      let device = new MHACWIFI1(this.log, config.host, "", "");
+      await device.getInfo()
+          .then(info => {
+            config.mac = info.wlanSTAMAC
+            this.log.info(`Found device at address: ${config.host}  (${config.mac})`);
+            this.addDevice(config)
+          })
+          .catch(error => {
+            this.log.info(`No device found at address: ${config.host} (${error})`)
+            setTimeout(() => {
+              this.discoverDevice(config);
+            }, DISCOVER_DELAY)
+          })
+    }
+
+    addDevice(config: MHACConfig) {
       // Create a unique ID for the device
       const uuid = this.api.hap.uuid.generate(config.mac);
       const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
       if (existingAccessory) {
-        // the accessory already exists
-        this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+          // the accessory already exists
+          this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
 
-        // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
-        existingAccessory.context.device = config;
-        this.api.updatePlatformAccessories([existingAccessory]);
+          // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
+          existingAccessory.context.device = config;
+          this.api.updatePlatformAccessories([existingAccessory]);
 
-        // create the accessory handler for the restored accessory
-        // this is imported from `platformAccessory.ts`
-        let device = new MHACAccessory(this, existingAccessory, config);
+          // create the accessory handler for the restored accessory
+          // this is imported from `platformAccessory.ts`
+          let device = new MHACAccessory(this, existingAccessory, config);
 
-        // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
-        // remove platform accessories when no longer present
-        // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-        // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
+          // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
+          // remove platform accessories when no longer present
+          // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+          // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
       } else {
-        this.log.info('Adding new accessory:', config.name);
+          this.log.info('Adding new accessory:', config.name);
 
-        // create a new accessory
-        const accessory = new this.api.platformAccessory(config.name, uuid);
-        accessory.context.device = config;
-        new MHACAccessory(this, accessory, config);
+          if (!config.username) {
+            config.username = this.config.username
+          }
+          if (!config.password) {
+            config.password = this.config.password
+          }
 
-        // link the accessory to your platform
-        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+          // create a new accessory
+          const accessory = new this.api.platformAccessory(config.name, uuid);
+          accessory.context.device = config;
+          new MHACAccessory(this, accessory, config);
+
+          // link the accessory to your platform
+          this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
       }
     }
-  }
 }

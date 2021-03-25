@@ -2,10 +2,7 @@ import { Logger } from 'homebridge';
 import * as http from 'http';
 import { EventEmitter } from 'events';
 
-type CommandResponseType = {
-    success: boolean;
-    data: any;
-}
+type CommandResponseType = any;
 
 export enum MhacModeTypes {
     AUTO = 0,
@@ -69,17 +66,12 @@ export class MHACWIFI1 extends EventEmitter {
         private ip: string,
         private username: string,
         private password: string,
-        autoSync: boolean = true,
-
-      ) {
-          super();
-          this.sessionID = "";
-          this.syncTimeout = null;
-          this.syncTimeoutPeriod = 2000;
-          this._buildSensorMap();
-          if (autoSync) {
-              this.startSynchronization();
-          }
+    ) {
+        super();
+        this.sessionID = "";
+        this.syncTimeout = null;
+        this.syncTimeoutPeriod = 2000;
+        this._buildSensorMap();
     }
 
     startSynchronization() {
@@ -93,7 +85,7 @@ export class MHACWIFI1 extends EventEmitter {
     }
 
     async syncState() {
-        if (! this.sessionID) {
+        if (!this.sessionID) {
             this.log.debug('Logging in to obtain a session ID');
             await this.login()
                 .then(() => {
@@ -137,19 +129,22 @@ export class MHACWIFI1 extends EventEmitter {
                 });
         }
 
-        this.syncTimeout = setTimeout(async () => {this.syncState()}, this.syncTimeoutPeriod)
+        this.syncTimeout = setTimeout(async () => { this.syncState() }, this.syncTimeoutPeriod)
+    }
+
+    async getInfo() {
+        return new Promise<any>((resolve, reject) => {
+             this.httpRequest("getinfo", {})
+                 .then(data => { resolve(data.info) })
+            })
     }
 
     login() {
-        return new Promise<null>((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             this.httpRequest("login", { username: this.username, password: this.password })
                 .then(result => {
-                    if (result.success) {
-                        this.sessionID = result.data.id.sessionID;
-                        resolve(null);
-                    } else {
-                        reject(result);
-                    }
+                    this.sessionID = result.id.sessionID;
+                    resolve(this.sessionID);
                 })
                 .catch(error => reject(error));
         });
@@ -164,11 +159,11 @@ export class MHACWIFI1 extends EventEmitter {
         return new Promise<null>((resolve, reject) => {
             this.httpRequest("getdatapointvalue", { uid: "all" })
                 .then(result => {
-                    this.parseState(result.data.dpval)
+                    this.parseState(result.dpval)
                     resolve(null);
 
                 })
-                .catch(error => reject(error) );
+                .catch(error => reject(error));
         })
     }
 
@@ -199,11 +194,12 @@ export class MHACWIFI1 extends EventEmitter {
     }
 
     httpRequest(command: string, data: object) {
-        if (command != "getdatapointvalue")
-            this.log.debug(`httpRequest: ${command} ${JSON.stringify(data)}`);
-        if (command != "login")
-          data['sessionID'] = this.sessionID;
-        const payload = JSON.stringify({command: command, data: data});
+        if (command != "getdatapointvalue") {
+            // Log before adding credentials
+            this.log.debug(`httpRequest: ${command} ${JSON.stringify(data)}`)
+        }
+        data['sessionID'] = this.sessionID;
+        const payload = JSON.stringify({ command: command, data: data });
 
         const options = {
             hostname: this.ip,
@@ -222,7 +218,7 @@ export class MHACWIFI1 extends EventEmitter {
 
                 if (resp.statusCode != 200) {
                     this.log.debug(`Received http error code ${resp.statusCode} for ${command}`);
-                    reject({code: resp.statusCode, message: "Invalid HTTP response"})
+                    reject({ code: resp.statusCode, message: "Invalid HTTP response" })
                 }
 
                 resp.on("data", (chunk: string) => buffer.push(chunk));
@@ -231,7 +227,7 @@ export class MHACWIFI1 extends EventEmitter {
                     let result = JSON.parse(content);
                     result.code = resp.statusCode;
                     if (result.success) {
-                        resolve(result);
+                        resolve(result.data);
                     } else {
                         this.log.debug(`Received http error response: ${content}`)
                         reject(result);
@@ -323,8 +319,8 @@ const SensorConfigMap = [
     {
         uid: 9,
         attr: 'userSetpoint',
-        fromVal: (v: number) => {if (v == 32768) { return 30; } else { return v / 10.0 }},
-        toVal: (v: number) => {return v * 10.0 },
+        fromVal: (v: number) => { if (v == 32768) { return 30; } else { return v / 10.0 } },
+        toVal: (v: number) => { return v * 10.0 },
     },
     {
         uid: 10,
@@ -368,19 +364,19 @@ const SensorConfigMap = [
     {
         uid: 35,
         attr: 'minSetpoint',
-        toVal: (v: number) => {return v * 10.0 },
-        fromVal: (v: number) => {return v / 10.0 },
+        toVal: (v: number) => { return v * 10.0 },
+        fromVal: (v: number) => { return v / 10.0 },
     },
     {
         uid: 36,
         attr: 'maxSetpoint',
-        toVal: (v: number) => {return v * 10.0 },
-        fromVal: (v: number) => {return v / 10.0 },
+        toVal: (v: number) => { return v * 10.0 },
+        fromVal: (v: number) => { return v / 10.0 },
     },
     {
         uid: 37,
         attr: 'outdoorTemperature',
-        fromVal: (v: number) => {return v / 10.0 },
+        fromVal: (v: number) => { return v / 10.0 },
     },
     { uid: 181 },       // ignore this code
     { uid: 182 },       // ignore this code

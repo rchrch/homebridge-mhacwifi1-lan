@@ -1,8 +1,8 @@
 import { API } from 'homebridge';
 
 import { PLATFORM_NAME } from './settings';
-import { MitsubishHeavyAirconPlatform } from './platform';
+import { MitsubishiHeavyAirconPlatform } from './platform';
 
 export = (api: API) => {
-  api.registerPlatform(PLATFORM_NAME, MitsubishHeavyAirconPlatform);
+  api.registerPlatform(PLATFORM_NAME, MitsubishiHeavyAirconPlatform);
 };
