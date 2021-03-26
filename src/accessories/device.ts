@@ -12,15 +12,39 @@ export enum MhacModeTypes {
     COOL = 4,
 }
 
+type SensorType = {
+    uid: number
+    value: number
+}
+
 export class MHACWIFI1 extends EventEmitter {
 
-    private sessionID: string;
-    private syncTimeout: NodeJS.Timeout | null;
-    private syncTimeoutPeriod: number;
-    private sensorMap: any = {};
-    private previousState: any = {};
-    private state: any = {};
+    public syncTimeoutPeriod: number
+    public slowThreshold: number
 
+    private sessionID: string
+    private syncTimeout: NodeJS.Timeout | null
+    private sensorMap: any = {}
+    private previousState: any = {}
+    private state: any = {}
+
+    constructor(
+        private log: Logger,
+        private ip: string,
+        private username: string,
+        private password: string,
+    ) {
+        super();
+        this.sessionID = "";
+        this.syncTimeout = null;
+        this.syncTimeoutPeriod = 2000;
+        this.slowThreshold = 400;
+        this._buildSensorMap();
+    }
+
+    /**
+     * Public API for getting state values
+     */
     public get = {
         active: () => { return this.state.active },
         currentTemperature: () => { return this.state.currentTemperature },
@@ -31,8 +55,12 @@ export class MHACWIFI1 extends EventEmitter {
         mode: () => { return this.state.mode },
         outdoorTemperature: () => { return this.state.outdoorTemperature },
         swingMode: () => { return (this.state.verticalPosition == 10) ? 1 : 0 },
+        valid: () => Object.keys(this.state).length > 0,
     };
 
+    /**
+     * Public API for setting state values
+     */
     public set = {
         active: async (value: number) => {
             this.setState('active', value);
@@ -61,39 +89,37 @@ export class MHACWIFI1 extends EventEmitter {
         }
     }
 
-    constructor(
-        private log: Logger,
-        private ip: string,
-        private username: string,
-        private password: string,
-    ) {
-        super();
-        this.sessionID = "";
-        this.syncTimeout = null;
-        this.syncTimeoutPeriod = 2000;
-        this._buildSensorMap();
-    }
-
+    /**
+     * Enables periodic timer for polling all device sensor states
+     */
     startSynchronization() {
         setImmediate(() => { this.syncState() });
     }
 
+    /**
+     * Stops the periodic polling for sensor states
+     */
     stopSynchronization() {
         if (this.syncTimeout)
             clearTimeout(this.syncTimeout);
         this.syncTimeout = null;
     }
 
+    /**
+     * Reads all sensors values from the device and caches them into the `state` variable.
+     */
     async syncState() {
         if (!this.sessionID) {
             this.log.debug('Logging in to obtain a session ID');
             await this.login()
                 .then(() => {
-                    this.log.debug('Obtained session ID');
+                    this.log.debug('Obtained session ID', this.sessionID);
                 })
                 .catch(error => {
                     this.log.error('Unable to authenticate', error);
                     this.sessionID = "";
+                    this.previousState = {}
+                    this.state = {}
                 });
         }
 
@@ -103,9 +129,8 @@ export class MHACWIFI1 extends EventEmitter {
             await this.refreshState()
                 .then(() => {
                     let query_time = Date.now() - start;
-                    if (query_time > 200) {
-                        // TODO: replace this with the hardware ID (maybe make this time configurable)
-                        this.log.warn(`Slow response time from unit ${query_time}`);
+                    if (query_time > this.slowThreshold) {
+                        this.log.warn(`Slow response time from ${this.ip} query time ${query_time}ms`);
                     }
 
                     // Check all state values to see if anything changed.  If change
@@ -126,49 +151,62 @@ export class MHACWIFI1 extends EventEmitter {
                 .catch(error => {
                     this.log.error('Unable to refresh state', error);
                     this.sessionID = "";
+                    this.previousState = {}
+                    this.state = {}
                 });
         }
 
         this.syncTimeout = setTimeout(async () => { this.syncState() }, this.syncTimeoutPeriod)
     }
 
+    /**
+     * Requests hardware configuration information from the device
+     *
+     * @returns Object containing device information such as firmware version
+     */
     async getInfo() {
-        return new Promise<any>((resolve, reject) => {
-             this.httpRequest("getinfo", {})
-                 .then(data => { resolve(data.info) })
-            })
+        let result = await this.httpRequest("getinfo", {})
+        return result.info
     }
 
-    login() {
-        return new Promise<string>((resolve, reject) => {
-            this.httpRequest("login", { username: this.username, password: this.password })
-                .then(result => {
-                    this.sessionID = result.id.sessionID;
-                    resolve(this.sessionID);
-                })
-                .catch(error => reject(error));
-        });
+    /**
+     * Performs login with the device
+     *
+     * @returns Session ID if login is successful
+     */
+    async login() {
+        let result = await this.httpRequest("login", { username: this.username, password: this.password })
+        this.sessionID = result.id.sessionID
+        return result.id.sessionID
     }
 
+    /**
+     * Performs device logout
+     */
     async logout() {
         await this.httpRequest("logout", {});
         this.sessionID = "";
     }
 
-    refreshState() {
-        return new Promise<null>((resolve, reject) => {
-            this.httpRequest("getdatapointvalue", { uid: "all" })
-                .then(result => {
-                    this.parseState(result.dpval)
-                    resolve(null);
-
-                })
-                .catch(error => reject(error));
-        })
+    /**
+     * Queries all sensors on the device
+     *
+     * After the device query, the returned values are normalized into the
+     * "state" object variable.
+     *
+     */
+    async refreshState() {
+        let result = await this.httpRequest("getdatapointvalue", { uid: "all" })
+        this.parseState(result.dpval)
     }
 
-    parseState(states) {
-        states.forEach(item => {
+    /**
+     * Converts the raw sensor data into normalized state values
+     *
+     * @param states
+     */
+    private parseState(sensors: SensorType[]) {
+        sensors.forEach(item => {
             let map = this.sensorMap[item.uid];
             if (!map) {
                 this.log.error('Unhandled sensor item', item);
@@ -181,7 +219,13 @@ export class MHACWIFI1 extends EventEmitter {
         });
     }
 
-    async setState(attr: string, value: number) {
+    /**
+     * Sets the given sensor to the given value
+     *
+     * @param attr  Attribute name
+     * @param value Normalized value (will be mapped into device specific value)
+     */
+    private async setState(attr: string, value: number) {
         let map = this.sensorMap[attr];
         if (this.state[attr] == value) {
             this.emit('refresh');
@@ -193,7 +237,18 @@ export class MHACWIFI1 extends EventEmitter {
         this.emit('refresh');
     }
 
-    httpRequest(command: string, data: object) {
+    /**
+     * Sends an HTTP POST request to the device with the given command
+     *
+     * This function takes care of adding sessionID credentials to the request
+     * from current login.  Returned result is the "data" field in the
+     * response json payload.
+     *
+     * @param command   Command for the request
+     * @param data      Parameters associated with the command
+     * @returns         JSON data returned by the device
+     */
+    private httpRequest(command: string, data: object) {
         if (command != "getdatapointvalue") {
             // Log before adding credentials
             this.log.debug(`httpRequest: ${command} ${JSON.stringify(data)}`)
@@ -236,7 +291,7 @@ export class MHACWIFI1 extends EventEmitter {
             });
 
             req.on("error", (error) => {
-                this.log.debug(`Http request error: ${error}`)
+                this.log.error(`Http request error: ${error}`)
                 reject(error);
             });
             req.write(payload);
@@ -244,9 +299,11 @@ export class MHACWIFI1 extends EventEmitter {
         });
     }
 
-    // Converts the SensorCOnfigMap into a two-way translation structure for converting
-    // uid <-> attrName and human-values <-> machine-values.
-    _buildSensorMap() {
+    /**
+     * Converts the SensorCOnfigMap into a two-way translation structure for converting
+     * uid <-> attrName and human-values <-> machine-values.
+     */
+    private _buildSensorMap() {
         SensorConfigMap.forEach(sensor => {
             let rev_values = {}
             for (const key in sensor.values) {

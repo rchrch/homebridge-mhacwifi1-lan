@@ -23,8 +23,8 @@ export class Fan {
         this.service = accessory.getService(platform.Service.Fanv2) ||
             accessory.addService(platform.Service.Fanv2, accessory.context.device.name + " Fan");
         this.service.getCharacteristic(Characteristic.Active)
-            .onGet(this.fanGetActive.bind(this))
-            .onSet(this.fanSetActive.bind(this));
+            .onGet(this.getActive.bind(this))
+            .onSet(this.setActive.bind(this));
         this.service.setCharacteristic(Characteristic.Name, "Fan");
         this.service.getCharacteristic(Characteristic.RotationSpeed)
             .setProps({ minValue: 0, maxValue: 100, minStep: 25 })
@@ -36,9 +36,10 @@ export class Fan {
     }
 
     updateHomeBridgeState() {
-        this.syncCharacteristic('Active', this.fanGetActive());
-        this.syncCharacteristic('RotationSpeed', this.getRotationSpeed());
-        this.syncCharacteristic('SwingMode', this.getSwingMode());
+        this.checkValid()
+        this.syncCharacteristic('Active', this.getActive())
+        this.syncCharacteristic('RotationSpeed', this.getRotationSpeed())
+        this.syncCharacteristic('SwingMode', this.getSwingMode())
     }
 
     syncCharacteristic(characteristic: string, value: number) {
@@ -48,14 +49,20 @@ export class Fan {
         }
     }
 
+    private checkValid() {
+        if (!this.device.get.valid())
+            throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE)
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    fanGetActive(): number {
+    private getActive(): number {
+        this.checkValid()
         let active = this.device.get.active();
         let mode = this.device.get.mode();
         return (active && mode == MhacModeTypes.FAN) ? 1 : 0;
     }
 
-    async fanSetActive(value: CharacteristicValue) {
+    private async setActive(value: CharacteristicValue) {
         let active = value as number;
         this.platform.log.debug(`Set characteristic Fan.Active -> ${value}`);
         if (active) {
@@ -65,26 +72,27 @@ export class Fan {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    getRotationSpeed(): number {
-        let hw_value = this.device.get.fanSpeed();
-        return hw_value * 25;
+    private getRotationSpeed(): number {
+        this.checkValid()
+        return this.device.get.fanSpeed() * 25
     }
 
-    async setRotationSpeed(service: string, value: CharacteristicValue) {
-        let hw_value = Math.ceil(value as number / 25);
-        this.platform.log.debug(`Set characteristic ${service}.RotationSpeed -> ${hw_value}`);
-        this.device.set.fanSpeed(hw_value);
+    private async setRotationSpeed(service: string, value: CharacteristicValue) {
+        this.checkValid()
+        let hw_value = Math.ceil(value as number / 25)
+        this.platform.log.debug(`Set characteristic ${-service}.RotationSpeed -> ${hw_value}`)
+        this.device.set.fanSpeed(hw_value)
         clearTimeout(this.debounce.speed)
-        this.debounce.speed = setTimeout(() => { this.device.set.fanSpeed(hw_value); }, 500);
+        this.debounce.speed = setTimeout(() => { this.device.set.fanSpeed(hw_value); }, 500)
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    getSwingMode(): number {
-        return this.device.get.swingMode();
+    private getSwingMode(): number {
+        return this.device.get.swingMode()
     }
 
-    async setSwingMode(service: string, value: CharacteristicValue) {
-        let swing = value as number;
-        this.platform.log.debug(`Set characteristic ${service}.SwingMode -> ${swing}`);
-        this.device.set.swingMode(swing);
+    private async setSwingMode(service: string, value: CharacteristicValue) {
+        let swing = value as number
+        this.platform.log.debug(`Set characteristic ${service}.SwingMode -> ${swing}`)
+        this.device.set.swingMode(swing)
     }
 }

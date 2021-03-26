@@ -31,7 +31,7 @@ export class Aircon {
             accessory.addService(platform.Service.HeaterCooler, accessory.context.device.name + " H/C");
         this.service.getCharacteristic(Characteristic.Active)
             .onGet(this.getActive.bind(this))
-            .onSet(this.setActive.bind(this));
+            .onSet(this.setActive.bind(this))
         this.service.getCharacteristic(Characteristic.CoolingThresholdTemperature)
             .onGet(this.getCoolingThresholdTemperature.bind(this))
             .onSet(this.setCoolingThresholdTemperature.bind(this));
@@ -62,77 +62,61 @@ export class Aircon {
     }
 
     updateHomeBridgeState() {
-        this.syncCharacteristic('Active', this.getActive());
-        this.syncCharacteristic('CoolingThresholdTemperature', this.getCoolingThresholdTemperature());
-        this.syncCharacteristic('CurrentTemperature', this.getCurrentTemperature());
-        this.syncCharacteristic('CurrentHeaterCoolerState', this.getCurrentHeaterCoolerState());
-        this.syncCharacteristic('HeatingThresholdTemperature', this.getHeatingThresholdTemperature());
-        this.syncCharacteristic('LockPhysicalControls', this.getLockPhysicalControls());
-        this.syncCharacteristic('RotationSpeed', this.getRotationSpeed());
-        this.syncCharacteristic('SwingMode', this.getSwingMode());
-        this.syncCharacteristic('TargetHeaterCoolerState', this.getTargetHeaterCoolerState());
+        this.checkValid()
+        this.syncCharacteristic('Active', this.getActive())
+        this.syncCharacteristic('CoolingThresholdTemperature', this.getCoolingThresholdTemperature())
+        this.syncCharacteristic('CurrentTemperature', this.getCurrentTemperature())
+        this.syncCharacteristic('CurrentHeaterCoolerState', this.getCurrentHeaterCoolerState())
+        this.syncCharacteristic('HeatingThresholdTemperature', this.getHeatingThresholdTemperature())
+        this.syncCharacteristic('LockPhysicalControls', this.getLockPhysicalControls())
+        this.syncCharacteristic('RotationSpeed', this.getRotationSpeed())
+        this.syncCharacteristic('SwingMode', this.getSwingMode())
+        this.syncCharacteristic('TargetHeaterCoolerState', this.getTargetHeaterCoolerState())
     }
 
-    syncCharacteristic(characteristic: string, value: number) {
+    private syncCharacteristic(characteristic: string, value: number) {
         if (this.service.getCharacteristic(this.platform.Characteristic[characteristic]).value != value) {
             this.platform.log.debug(`Updating homebridge characteristics HeaterCooler.${characteristic} => ${value}`)
             this.service.getCharacteristic(this.platform.Characteristic[characteristic]).updateValue(value)
         }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    getRotationSpeed(): number {
-        let hw_value = this.device.get.fanSpeed();
-        return hw_value * 25;
+    private checkValid() {
+        if (!this.device.get.valid())
+            throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE)
     }
-
-    async setRotationSpeed(service: string, value: CharacteristicValue) {
-        let hw_value = Math.ceil(value as number / 25);
-        this.platform.log.debug(`Set characteristic ${service}.RotationSpeed -> ${hw_value}`);
-        clearTimeout(this.debounce.speed)
-        this.debounce.speed = setTimeout(() => { this.platform.log.debug(`setting hw to ${hw_value}`); this.device.set.fanSpeed(hw_value); }, 500);
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    getSwingMode(): number {
-        return this.device.get.swingMode();
-    }
-
-    async setSwingMode(service: string, value: CharacteristicValue) {
-        let swing = value as number;
-        this.platform.log.debug(`Set characteristic ${service}.SwingMode -> ${swing}`);
-        this.device.set.swingMode(swing);
-    }
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    getActive(): number {
+    private getActive(): number {
+        this.checkValid()
         let active = this.device.get.active();
         let mode = this.device.get.mode();
         return (active && [MhacModeTypes.AUTO, MhacModeTypes.COOL, MhacModeTypes.HEAT].includes(mode)) ?
             this.platform.Characteristic.Active.ACTIVE : this.platform.Characteristic.Active.INACTIVE;
     }
 
-    async setActive(value: CharacteristicValue) {
-        let active = value as number;
-        let mode = this.device.get.mode();
-
-        this.platform.log.debug(`Set characteristic HeaterCooler.Active -> ${value}`);
-        this.device.set.active(active);
+    private async setActive(value: CharacteristicValue) {
+        let active = value as number
+        this.platform.log.debug(`Set characteristic HeaterCooler.Active -> ${value}`)
+        this.device.set.active(active)
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    getCoolingThresholdTemperature(): number {
-        return this.device.get.maxSetpoint();
+    private getCoolingThresholdTemperature(): number {
+        this.checkValid()
+        return this.device.get.maxSetpoint()
     }
 
-    async setCoolingThresholdTemperature(value: CharacteristicValue) {
+    private async setCoolingThresholdTemperature(value: CharacteristicValue) {
         let setpoint = value as number;
         this.platform.log.debug(`Set characteristic HeaterCooler.CoolingThresholdTemperature -> ${setpoint}`);
         this.device.set.maxSetpoint(setpoint);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    getCurrentHeaterCoolerState(): number {
+    private getCurrentHeaterCoolerState(): number {
+        this.checkValid()
+
         let currentState: number;
         let characteristic = this.platform.Characteristic;
         let mode = this.device.get.mode();
@@ -169,36 +153,64 @@ export class Aircon {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    getCurrentTemperature(): number {
+    private getCurrentTemperature(): number {
+        this.checkValid()
         return this.device.get.currentTemperature();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    getHeatingThresholdTemperature(): number {
+    private getHeatingThresholdTemperature(): number {
+        this.checkValid()
         return this.device.get.minSetpoint();
     }
 
-    async setHeatingThresholdTemperature(value: CharacteristicValue) {
+    private async setHeatingThresholdTemperature(value: CharacteristicValue) {
         let setpoint = value as number;
         this.platform.log.debug(`Set characteristic HeaterCooler.HeatingThresholdTemperature -> ${setpoint}`);
         this.device.set.minSetpoint(setpoint);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    getLockPhysicalControls(): number {
+    private getLockPhysicalControls(): number {
+        this.checkValid()
         return this.device.get.locked();
     }
 
-    async setLockPhysicalControls(value: CharacteristicValue) {
+    private async setLockPhysicalControls(value: CharacteristicValue) {
         let locked = value as number;
         this.platform.log.debug(`Set characteristic HeaterCooler.LockPhysicalControls -> ${locked}`);
         this.device.set.locked(locked);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    getTargetHeaterCoolerState(): number {
-        let characteristic = this.platform.Characteristic;
+    private getRotationSpeed(): number {
+        this.checkValid()
+        return this.device.get.fanSpeed() * 25
+    }
 
+    private async setRotationSpeed(service: string, value: CharacteristicValue) {
+        let hw_value = Math.ceil(value as number / 25)
+        this.platform.log.debug(`Set characteristic ${service}.RotationSpeed -> ${hw_value}`)
+        clearTimeout(this.debounce.speed)
+        this.debounce.speed = setTimeout(() => { this.platform.log.debug(`setting hw to ${hw_value}`); this.device.set.fanSpeed(hw_value); }, 500)
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private getSwingMode(): number {
+        this.checkValid()
+        return this.device.get.swingMode()
+    }
+
+    private async setSwingMode(service: string, value: CharacteristicValue) {
+        let swing = value as number;
+        this.platform.log.debug(`Set characteristic ${service}.SwingMode -> ${swing}`);
+        this.device.set.swingMode(swing);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private getTargetHeaterCoolerState(): number {
+        this.checkValid()
+        let characteristic = this.platform.Characteristic;
         switch (this.device.get.mode()) {
             case MhacModeTypes.AUTO:
                 return characteristic.TargetHeaterCoolerState.AUTO;
@@ -214,7 +226,7 @@ export class Aircon {
         }
     }
 
-    async setTargetHeaterCoolerState(value: CharacteristicValue) {
+    private  async setTargetHeaterCoolerState(value: CharacteristicValue) {
         let characteristic = this.platform.Characteristic;
         let mode: number | null = null;
 
@@ -237,14 +249,15 @@ export class Aircon {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    getTemperatureDisplayUnits(): number {
+    private getTemperatureDisplayUnits(): number {
+        this.checkValid()
         let units = this.accessory.context.device.units;
         units = units ? this.platform.Characteristic.TemperatureDisplayUnits.FAHRENHEIT :
             this.platform.Characteristic.TemperatureDisplayUnits.CELSIUS;
         return units;
     }
 
-    async setTemperatureDisplayUnits(value: CharacteristicValue) {
+    private async setTemperatureDisplayUnits(value: CharacteristicValue) {
         this.accessory.context.device.units = value;
     }
 }

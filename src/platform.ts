@@ -50,6 +50,7 @@ export class MitsubishiHeavyAirconPlatform implements DynamicPlatformPlugin {
         }
 
         for (const config of this.config.devices) {
+          // Default username/password to global settings if not present
           if (!config.username) {
             config.username = this.config.username
           }
@@ -80,6 +81,7 @@ export class MitsubishiHeavyAirconPlatform implements DynamicPlatformPlugin {
       let device = new MHACWIFI1(this.log, config.host, "", "");
       await device.getInfo()
           .then(info => {
+            config.info = info;
             config.mac = info.wlanSTAMAC
             this.log.info(`Found device at address: ${config.host}  (${config.mac})`);
             this.addDevice(config)
@@ -109,19 +111,13 @@ export class MitsubishiHeavyAirconPlatform implements DynamicPlatformPlugin {
           // this is imported from `platformAccessory.ts`
           let device = new MHACAccessory(this, existingAccessory, config);
 
+          // TODO: remove old devices
           // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
           // remove platform accessories when no longer present
           // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
           // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
       } else {
           this.log.info('Adding new accessory:', config.name);
-
-          if (!config.username) {
-            config.username = this.config.username
-          }
-          if (!config.password) {
-            config.password = this.config.password
-          }
 
           // create a new accessory
           const accessory = new this.api.platformAccessory(config.name, uuid);
