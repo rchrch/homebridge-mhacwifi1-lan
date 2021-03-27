@@ -35,10 +35,10 @@ export class Dehumidifier {
         this.service.getCharacteristic(Characteristic.RotationSpeed)
             .setProps({ minValue: 0, maxValue: 100, minStep: 25 })
             .onGet(this.getRotationSpeed.bind(this))
-            .onSet(this.setRotationSpeed.bind(this, 'HumidifierDehumidifier'));
+            .onSet(this.setRotationSpeed.bind(this));
         this.service.getCharacteristic(Characteristic.SwingMode)
             .onGet(this.getSwingMode.bind(this))
-            .onSet(this.setSwingMode.bind(this, 'HumidifierDehumidifier'));
+            .onSet(this.setSwingMode.bind(this));
         this.service.getCharacteristic(Characteristic.TargetHumidifierDehumidifierState)
             .setProps({
                 minValue: Characteristic.TargetHumidifierDehumidifierState.DEHUMIDIFIER,
@@ -114,9 +114,9 @@ export class Dehumidifier {
         return this.device.get.fanSpeed() * 25
     }
 
-    private async setRotationSpeed(service: string, value: CharacteristicValue) {
+    private async setRotationSpeed(value: CharacteristicValue) {
         let hw_value = Math.ceil(value as number / 25);
-        this.platform.log.debug(`Set characteristic ${service}.RotationSpeed -> ${hw_value}`);
+        this.platform.log.debug(`Set characteristic HumidifierDehumidifier.RotationSpeed -> ${hw_value}`);
         clearTimeout(this.debounce.speed)
         this.debounce.speed = setTimeout(() => { this.platform.log.debug(`setting hw to ${hw_value}`); this.device.set.fanSpeed(hw_value); }, 500);
     }
@@ -126,9 +126,9 @@ export class Dehumidifier {
         return this.device.get.swingMode();
     }
 
-    private async setSwingMode(service: string, value: CharacteristicValue) {
+    private async setSwingMode(value: CharacteristicValue) {
         let swing = value as number;
-        this.platform.log.debug(`Set characteristic ${service}.SwingMode -> ${swing}`);
+        this.platform.log.debug(`Set characteristic HumidifierDehumidifier.SwingMode -> ${swing}`);
         this.device.set.swingMode(swing);
     }
 

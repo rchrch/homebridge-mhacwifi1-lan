@@ -44,15 +44,15 @@ export class Aircon {
             .onSet(this.setHeatingThresholdTemperature.bind(this));
         this.service.getCharacteristic(Characteristic.LockPhysicalControls)
             .onGet(this.getLockPhysicalControls.bind(this))
-            .onSet(this.setLockPhysicalControls.bind(this, 'HeaterCooler'));
+            .onSet(this.setLockPhysicalControls.bind(this));
         this.service.setCharacteristic(Characteristic.Name, "Aircon");
         this.service.getCharacteristic(Characteristic.RotationSpeed)
             .setProps({ minValue: 0, maxValue: 100, minStep: 25 })
             .onGet(this.getRotationSpeed.bind(this))
-            .onSet(this.setRotationSpeed.bind(this, 'HeaterCooler'));
+            .onSet(this.setRotationSpeed.bind(this));
         this.service.getCharacteristic(Characteristic.SwingMode)
             .onGet(this.getSwingMode.bind(this))
-            .onSet(this.setSwingMode.bind(this, 'HeaterCooler'));
+            .onSet(this.setSwingMode.bind(this));
         this.service.getCharacteristic(Characteristic.TargetHeaterCoolerState)
             .onGet(this.getTargetHeaterCoolerState.bind(this))
             .onSet(this.setTargetHeaterCoolerState.bind(this));
@@ -179,7 +179,7 @@ export class Aircon {
     private async setLockPhysicalControls(value: CharacteristicValue) {
         let locked = value as number;
         this.platform.log.debug(`Set characteristic HeaterCooler.LockPhysicalControls -> ${locked}`);
-        this.device.set.locked(locked);
+        this.device.set.locked(locked ? 1 : 0);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -188,9 +188,9 @@ export class Aircon {
         return this.device.get.fanSpeed() * 25
     }
 
-    private async setRotationSpeed(service: string, value: CharacteristicValue) {
-        let hw_value = Math.ceil(value as number / 25)
-        this.platform.log.debug(`Set characteristic ${service}.RotationSpeed -> ${hw_value}`)
+    private async setRotationSpeed(value: CharacteristicValue) {
+        let hw_value = Math.max(1, Math.ceil(value as number / 25))
+        this.platform.log.debug(`Set characteristic HeaterCooler.RotationSpeed -> ${hw_value}`)
         clearTimeout(this.debounce.speed)
         this.debounce.speed = setTimeout(() => { this.platform.log.debug(`setting hw to ${hw_value}`); this.device.set.fanSpeed(hw_value); }, 500)
     }
@@ -201,9 +201,9 @@ export class Aircon {
         return this.device.get.swingMode()
     }
 
-    private async setSwingMode(service: string, value: CharacteristicValue) {
+    private async setSwingMode(value: CharacteristicValue) {
         let swing = value as number;
-        this.platform.log.debug(`Set characteristic ${service}.SwingMode -> ${swing}`);
+        this.platform.log.debug(`Set characteristic HeaterCooler.SwingMode -> ${swing}`);
         this.device.set.swingMode(swing);
     }
 
