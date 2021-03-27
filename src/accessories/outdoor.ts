@@ -2,7 +2,7 @@ import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import { MHACWIFI1, MhacModeTypes } from './device';
 import { MitsubishiHeavyAirconPlatform } from '../platform';
 
-export class OutsideTemperature {
+export class OutdoorTemperature {
 
     private service: Service;
     private debounce: any = { speed: null };
@@ -18,8 +18,8 @@ export class OutsideTemperature {
         // Implemented characteristics:
         //    CurrentTemperature
         this.service = accessory.getService(platform.Service.TemperatureSensor) ||
-            accessory.addService(platform.Service.TemperatureSensor, "Outside")
-        this.service.setCharacteristic(Characteristic.Name, "Outside")
+            accessory.addService(platform.Service.TemperatureSensor, "Outdoor")
+        this.service.setCharacteristic(Characteristic.Name, "Outdoor")
         this.service.getCharacteristic(Characteristic.CurrentTemperature)
             .onGet(this.getCurrentTemperature.bind(this))
     }

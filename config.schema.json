@@ -18,7 +18,7 @@
         "default": "admin"
       },
       "devices": {
-        "title": "Manual List Of Devices",
+        "title": "Devices:",
         "type": "array",
         "items": {
           "title": "Device",
@@ -35,14 +35,19 @@
               "type": "string",
               "required": true
             },
+            "outdoorTemperature": {
+              "title": "Create outdoor temperature sensor",
+              "type": "boolean",
+              "default": true
+            },
             "username": {
-              "title": "Username (optional)",
+              "title": "Username (optional - use global value if not provided)",
               "type": "string",
               "required": false,
               "default": ""
             },
             "password": {
-              "title": "Password (optional)",
+              "title": "Password (optional - use global value if not provided)",
               "type": "string",
               "required": false,
               "default": ""

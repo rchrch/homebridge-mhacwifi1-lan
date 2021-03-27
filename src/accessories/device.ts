@@ -305,9 +305,7 @@ export class MHACWIFI1 extends EventEmitter {
         let map = this.sensorMap[attr];
         let xvalue = map.xform ? map.xform(value) : value
         this.log.debug(`setState attr=${attr}, uid=${map.uid}, value=${xvalue}`);
-        console.log('before')
         await this.httpRequest("setdatapointvalue", { uid: map.uid, value: xvalue });
-        console.log('after')
         this.state[attr] = value;
         this.checkForChange()
     }
