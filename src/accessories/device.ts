@@ -1,6 +1,7 @@
 import { Logger } from 'homebridge';
 import * as http from 'http';
 import { EventEmitter } from 'events';
+import { threadId } from 'node:worker_threads';
 
 export enum MhacModeTypes {
     AUTO = 0,
@@ -39,11 +40,13 @@ type SensorType = {
  */
 export class MHACWIFI1 extends EventEmitter {
 
-    public syncTimeoutPeriod: number
-    public slowThreshold: number
+    public syncTimeoutPeriod = 2000
+    public slowThreshold = 400
+    public minSetpointValue = 18
+    public maxSetpointValue = 30
 
-    private sessionID: string
-    private syncTimeout: NodeJS.Timeout | null
+    private sessionID: string = ""
+    private syncTimeout: NodeJS.Timeout | null = null
     private sensorMap: any = {}
     private previousState: any = {}
     private state: any = {}
@@ -55,10 +58,6 @@ export class MHACWIFI1 extends EventEmitter {
         private password: string,
     ) {
         super();
-        this.sessionID = "";
-        this.syncTimeout = null;
-        this.syncTimeoutPeriod = 2000;
-        this.slowThreshold = 400;
         this._buildSensorMap();
     }
 
@@ -74,8 +73,9 @@ export class MHACWIFI1 extends EventEmitter {
         minSetpoint: () => this.state.minSetpoint,
         mode: () => this.state.mode,
         outdoorTemperature: () => this.state.outdoorTemperature,
+        setpoint: () => this.state.setpoint,
         swingMode: () => (this.state.verticalPosition == 10) ? 1 : 0,
-        valid: () => Object.keys(this.state).length > 0,
+        valid: () => typeof this.state.active !== "undefined",
     };
 
     /**
@@ -100,6 +100,9 @@ export class MHACWIFI1 extends EventEmitter {
         },
         mode: async (value: number) => {
             this.setState('mode', value);
+        },
+        setpoint: async (value: number) => {
+            this.setState('setpoint', value);
         },
         swingMode: async (value: number) => {
             if (value) {
@@ -162,7 +165,7 @@ export class MHACWIFI1 extends EventEmitter {
      *
      * @returns List of service commands available on device
      */
-     public async getAvailableServices() {
+    public async getAvailableServices() {
         let result = await this.httpRequest("getavailableservices")
         return result.userinfo.servicelist
     }
@@ -172,7 +175,7 @@ export class MHACWIFI1 extends EventEmitter {
      *
      * @returns List of service commands available on device
      */
-     public async getAvailableDatapoints() {
+    public async getAvailableDatapoints() {
         let result = await this.httpRequest("getavailabledatapoints")
         return result.dp.datapoints
     }
@@ -212,8 +215,7 @@ export class MHACWIFI1 extends EventEmitter {
                         this.log.error('Unable to get available services', error)
                         this.resetState()
                     })
-            }
-            if (this.sessionID) {
+
                 await this.getAvailableDatapoints()
                     .then((result) => {
                         this.log.debug(`Available datapoints: ${JSON.stringify(result)}`)
@@ -221,6 +223,16 @@ export class MHACWIFI1 extends EventEmitter {
                     .catch(error => {
                         this.log.error('Unable to get available services', error)
                         this.resetState()
+                    })
+
+                // Set sane defaults
+                await this.set.minSetpoint(this.minSetpointValue)
+                    .catch(error => {
+                        this.log.error('Unable to get set minSetpoint value', error)
+                    })
+                await this.set.maxSetpoint(this.maxSetpointValue)
+                    .catch(error => {
+                        this.log.error('Unable to get set maxSetpoint value', error)
                     })
             }
         }
@@ -284,14 +296,14 @@ export class MHACWIFI1 extends EventEmitter {
         let changed = false;
         Object.keys(this.state).forEach((attr) => {
             if (this.state[attr] != this.previousState[attr]) {
-                changed = true;
-                this.log.info(`State change for ${attr}  ${this.previousState[attr]} => ${this.state[attr]}`);
-                this.emit(EVENT_CHANGED, attr, this.previousState[attr], this.state[attr]);
-                this.previousState[attr] = this.state[attr];
+                changed = true
+                this.log.info(`State change for ${attr}  ${this.previousState[attr]} => ${this.state[attr]}`)
+                this.emit(EVENT_CHANGED, attr, this.previousState[attr], this.state[attr])
+                this.previousState[attr] = this.state[attr]
             }
         })
         if (changed) {
-            setTimeout(() => { this.emit(EVENT_UPDATED); }, 0);
+            setTimeout(() => { this.emit(EVENT_UPDATED); }, 0)
         }
     }
 
@@ -449,8 +461,8 @@ const SensorConfigMap = [
     },
     {
         uid: 9,
-        attr: 'userSetpoint',
-        fromVal: (v: number) => { if (v == 32768) { return 30; } else { return v / 10.0 } },
+        attr: 'setpoint',
+        fromVal: (v: number) => { if (v == 32768) { return 28; } else { return v / 10.0 } },
         toVal: (v: number) => { return v * 10.0 },
     },
     {

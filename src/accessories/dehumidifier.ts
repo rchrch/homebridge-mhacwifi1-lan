@@ -51,7 +51,8 @@ export class Dehumidifier {
     }
 
     updateHomeBridgeState() {
-        this.checkValid()
+        if (!this.device.get.valid())
+            return
         this.syncCharacteristic('Active', this.getActive());
         this.syncCharacteristic('CurrentHumidifierDehumidifierState', this.getCurrentHumidifierDehumidifierState());
         this.syncCharacteristic('RotationSpeed', this.getRotationSpeed());

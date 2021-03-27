@@ -25,7 +25,8 @@ export class OutdoorTemperature {
     }
 
     updateHomeBridgeState() {
-        this.checkValid()
+        if (!this.device.get.valid())
+            return
         this.syncCharacteristic('CurrentTemperature', this.getCurrentTemperature())
     }
 

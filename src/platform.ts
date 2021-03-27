@@ -92,7 +92,7 @@ export class MitsubishiHeavyAirconPlatform implements DynamicPlatformPlugin {
         let device = new MHACWIFI1(this.log, config.host, config.username, config.password)
         device.startSynchronization()
 
-        let uuid = this.api.hap.uuid.generate(config.mac);
+        let uuid = this.api.hap.uuid.generate('aircon' + config.mac);
         let accessory = this.accessories.find(accessory => accessory.UUID === uuid);
         if (accessory) {
             this.log.info(`Restoring aircon accessory from cache: ${accessory.displayName} [${accessory.context.device.mac}]`);
@@ -106,7 +106,7 @@ export class MitsubishiHeavyAirconPlatform implements DynamicPlatformPlugin {
             this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
         }
 
-        uuid = this.api.hap.uuid.generate(config.mac + 'outdoor');
+        uuid = this.api.hap.uuid.generate('outdoor' + config.mac);
         accessory = this.accessories.find(accessory => accessory.UUID === uuid);
         if (config.outdoorTemperature) {
             if (accessory) {

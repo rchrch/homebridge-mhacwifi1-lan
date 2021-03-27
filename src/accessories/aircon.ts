@@ -33,6 +33,10 @@ export class Aircon {
             .onGet(this.getActive.bind(this))
             .onSet(this.setActive.bind(this))
         this.service.getCharacteristic(Characteristic.CoolingThresholdTemperature)
+            .setProps({
+                minValue: this.device.minSetpointValue,
+                maxValue: this.device.maxSetpointValue,
+            })
             .onGet(this.getCoolingThresholdTemperature.bind(this))
             .onSet(this.setCoolingThresholdTemperature.bind(this));
         this.service.getCharacteristic(Characteristic.CurrentTemperature)
@@ -40,6 +44,10 @@ export class Aircon {
         this.service.getCharacteristic(Characteristic.CurrentHeaterCoolerState)
             .onGet(this.getCurrentHeaterCoolerState.bind(this));
         this.service.getCharacteristic(Characteristic.HeatingThresholdTemperature)
+            .setProps({
+                minValue: this.device.minSetpointValue,
+                maxValue: this.device.maxSetpointValue,
+            })
             .onGet(this.getHeatingThresholdTemperature.bind(this))
             .onSet(this.setHeatingThresholdTemperature.bind(this));
         this.service.getCharacteristic(Characteristic.LockPhysicalControls)
@@ -62,7 +70,8 @@ export class Aircon {
     }
 
     updateHomeBridgeState() {
-        this.checkValid()
+        if (!this.device.get.valid())
+            return
         this.syncCharacteristic('Active', this.getActive())
         this.syncCharacteristic('CoolingThresholdTemperature', this.getCoolingThresholdTemperature())
         this.syncCharacteristic('CurrentTemperature', this.getCurrentTemperature())
@@ -104,13 +113,13 @@ export class Aircon {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private getCoolingThresholdTemperature(): number {
         this.checkValid()
-        return this.device.get.maxSetpoint()
+        return this.device.get.setpoint()
     }
 
     private async setCoolingThresholdTemperature(value: CharacteristicValue) {
         let setpoint = value as number;
         this.platform.log.debug(`Set characteristic HeaterCooler.CoolingThresholdTemperature -> ${setpoint}`);
-        this.device.set.maxSetpoint(setpoint);
+        this.device.set.setpoint(setpoint);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -121,32 +130,31 @@ export class Aircon {
         let characteristic = this.platform.Characteristic;
         let mode = this.device.get.mode();
         let currentTemperature = this.device.get.currentTemperature()
-        let minSetpoint = this.device.get.minSetpoint();
-        let maxSetpoint = this.device.get.maxSetpoint();
+        let setpoint = this.device.get.setpoint();
 
         if (mode == MhacModeTypes.AUTO) {
-            if (currentTemperature > maxSetpoint) {
+            if (currentTemperature > setpoint) {
                 currentState = characteristic.CurrentHeaterCoolerState.COOLING;
-            } else if (currentTemperature < minSetpoint) {
+            } else if (currentTemperature < setpoint) {
                 currentState = characteristic.CurrentHeaterCoolerState.HEATING;
             } else {
-                currentState = characteristic.CurrentHeaterCoolerState.IDLE;
+                currentState = characteristic.CurrentHeaterCoolerState.INACTIVE;
             }
         } else if (mode == MhacModeTypes.HEAT) {
-            if (currentTemperature < minSetpoint) {
+            if (currentTemperature < setpoint) {
                 currentState = characteristic.CurrentHeaterCoolerState.HEATING;
             } else {
-                currentState = characteristic.CurrentHeaterCoolerState.IDLE;
+                currentState = characteristic.CurrentHeaterCoolerState.INACTIVE;
             }
         } else if (mode == MhacModeTypes.DRY) {
-            currentState = characteristic.CurrentHeaterCoolerState.IDLE;
+            currentState = characteristic.CurrentHeaterCoolerState.INACTIVE;
         } else if (mode == MhacModeTypes.FAN) {
-            currentState = characteristic.CurrentHeaterCoolerState.IDLE;
+            currentState = characteristic.CurrentHeaterCoolerState.INACTIVE;
         } else {   // state.mode == MhacModeTypes.COOL
-            if (currentTemperature > maxSetpoint) {
+            if (currentTemperature > setpoint) {
                 currentState = characteristic.CurrentHeaterCoolerState.COOLING;
             } else {
-                currentState = characteristic.CurrentHeaterCoolerState.IDLE;
+                currentState = characteristic.CurrentHeaterCoolerState.INACTIVE;
             }
         }
         return currentState;
@@ -161,13 +169,13 @@ export class Aircon {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private getHeatingThresholdTemperature(): number {
         this.checkValid()
-        return this.device.get.minSetpoint();
+        return this.device.get.setpoint();
     }
 
     private async setHeatingThresholdTemperature(value: CharacteristicValue) {
         let setpoint = value as number;
         this.platform.log.debug(`Set characteristic HeaterCooler.HeatingThresholdTemperature -> ${setpoint}`);
-        this.device.set.minSetpoint(setpoint);
+        this.device.set.setpoint(setpoint);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -36,7 +36,8 @@ export class Fan {
     }
 
     updateHomeBridgeState() {
-        this.checkValid()
+        if (!this.device.get.valid())
+            return
         this.syncCharacteristic('Active', this.getActive())
         this.syncCharacteristic('RotationSpeed', this.getRotationSpeed())
         this.syncCharacteristic('SwingMode', this.getSwingMode())
