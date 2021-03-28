@@ -85,5 +85,5 @@ This project is licensed under the Apache v2 License - see the [LICENSE.md](LICE
 ## Acknowledgments
 
 * Other existing plugin implementations for MH-AC-WIFI-1
-    https://github.com/LarsenDX/homebridge-mhacwifi1-v2
-    https://github.com/Rickth64/homebridge-mhacwifi1
+    * https://github.com/LarsenDX/homebridge-mhacwifi1-v2
+    * https://github.com/Rickth64/homebridge-mhacwifi1
