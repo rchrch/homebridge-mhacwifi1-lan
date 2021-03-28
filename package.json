@@ -1,10 +1,9 @@
 {
-  "private": true,
-  "displayName": "Mitsubishi Heavy Aircon",
   "name": "homebridge-mhacwifi1-lan",
-  "version": "0.1.0-pre",
   "description": "Homebridge plugin for LAN of Mitsubishi Heavy Aircons",
+  "version": "0.1.0",
   "license": "Apache-2.0",
+  "homepage": "https://github.com/rchrch/homebridge-mhacwifi1-lan",
   "repository": {
     "type": "git",
     "url": "git://git@github.com:rchrch/homebridge-mhacwifi1-lan.git"
