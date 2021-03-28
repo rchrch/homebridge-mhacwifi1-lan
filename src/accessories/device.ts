@@ -199,7 +199,7 @@ export class MHACWIFI1 extends EventEmitter {
             this.log.debug('Logging in to obtain a session ID')
             await this.login()
                 .then(() => {
-                    this.log.debug('Obtained session ID', this.sessionID)
+                    this.log.debug('Obtained a new session ID')
                 })
                 .catch(error => {
                     this.log.error('Unable to authenticate', error)
