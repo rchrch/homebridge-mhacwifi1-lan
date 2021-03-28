@@ -1,7 +1,6 @@
+import { EventEmitter } from 'events';
 import { Logger } from 'homebridge';
 import * as http from 'http';
-import { EventEmitter } from 'events';
-import { threadId } from 'node:worker_threads';
 
 export enum MhacModeTypes {
     AUTO = 0,

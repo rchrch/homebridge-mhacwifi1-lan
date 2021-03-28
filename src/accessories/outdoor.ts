@@ -1,8 +1,8 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
-import { MHACWIFI1, MhacModeTypes } from './device';
+import { PlatformAccessory, Service } from 'homebridge';
 import { MitsubishiHeavyAirconPlatform } from '../platform';
+import { MHACWIFI1 } from './device';
 
-export class OutdoorTemperature {
+export class OutdoorTemperatureService {
 
     private service: Service;
     private debounce: any = { speed: null };

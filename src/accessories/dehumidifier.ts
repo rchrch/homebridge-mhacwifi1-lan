@@ -1,8 +1,8 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
-import { MHACWIFI1, MhacModeTypes } from './device';
+import { CharacteristicValue, PlatformAccessory, Service } from 'homebridge';
 import { MitsubishiHeavyAirconPlatform } from '../platform';
+import { MhacModeTypes, MHACWIFI1 } from './device';
 
-export class Dehumidifier {
+export class DehumidifierService {
 
     private service: Service;
     private debounce: any = { speed: null };

@@ -1,21 +1,23 @@
 import { PlatformAccessory } from 'homebridge'
-import { Aircon } from "./accessories/aircon"
-import { Dehumidifier } from "./accessories/dehumidifier"
+import { AirconService } from "./accessories/aircon"
+import { DehumidifierService } from "./accessories/dehumidifier"
 import { EVENT_UPDATED, MHACWIFI1 } from './accessories/device'
-import { Fan } from "./accessories/fan"
-import { OutdoorTemperature } from "./accessories/outdoor"
+import { FanService } from "./accessories/fan"
+import { OutdoorTemperatureService } from "./accessories/outdoor"
 import { MHACConfig, MitsubishiHeavyAirconPlatform } from './platform'
 
 
 const MANUFACTURER = "Mitsubishi Heavy Industries"
 const MODEL = "MH-AC-WIFI-1"
 
-
+/**
+ * Homebridge accessory class containing indoor aircon related services
+ */
 export class AirconAccessory {
 
-    private aircon: Aircon
-    private fan: Fan
-    private dehumidifier: Dehumidifier
+    private aircon: AirconService
+    private fan: FanService
+    private dehumidifier: DehumidifierService
 
     constructor(
         device: MHACWIFI1,
@@ -36,9 +38,9 @@ export class AirconAccessory {
             .setCharacteristic(Characteristic.FirmwareRevision, config.info.fwVersion)
 
         // Add the relavant accessories
-        this.aircon = new Aircon(platform, accessory, device)
-        this.fan = new Fan(platform, accessory, device)
-        this.dehumidifier = new Dehumidifier(platform, accessory, device)
+        this.aircon = new AirconService(platform, accessory, device)
+        this.fan = new FanService(platform, accessory, device)
+        this.dehumidifier = new DehumidifierService(platform, accessory, device)
     }
 
     async updateHomeBridgeState() {
@@ -49,9 +51,12 @@ export class AirconAccessory {
 }
 
 
+/**
+ * Homebridge accessory class containing outdoor aircon related services
+ */
 export class OutdoorTemperatureAccessory {
 
-    private temperature: OutdoorTemperature
+    private temperature: OutdoorTemperatureService
 
     constructor(
         device: MHACWIFI1,
@@ -72,7 +77,7 @@ export class OutdoorTemperatureAccessory {
             .setCharacteristic(Characteristic.SerialNumber, config.info.sn)
             .setCharacteristic(Characteristic.FirmwareRevision, config.info.fwVersion)
 
-        this.temperature = new OutdoorTemperature(platform, accessory, device)
+        this.temperature = new OutdoorTemperatureService(platform, accessory, device)
     }
 
     async updateHomeBridgeState() {

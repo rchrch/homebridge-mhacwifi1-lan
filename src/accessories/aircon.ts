@@ -1,8 +1,8 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
-import { MHACWIFI1, MhacModeTypes } from './device';
+import { CharacteristicValue, PlatformAccessory, Service } from 'homebridge';
 import { MitsubishiHeavyAirconPlatform } from '../platform';
+import { MhacModeTypes, MHACWIFI1 } from './device';
 
-export class Aircon {
+export class AirconService {
 
     private service: Service;
     private debounce: any = { speed: null };
@@ -232,7 +232,7 @@ export class Aircon {
         }
     }
 
-    private  async setTargetHeaterCoolerState(value: CharacteristicValue) {
+    private async setTargetHeaterCoolerState(value: CharacteristicValue) {
         let characteristic = this.platform.Characteristic;
         let mode: number | null = null;
 
