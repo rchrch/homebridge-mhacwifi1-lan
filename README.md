@@ -1,6 +1,6 @@
 # Homebridge Plugin for LAN Control of Mitsubishi Heavy Industries MH-AC-WIFI-1
 
-[![Version](https://img.shields.io/npm/v/homebridge-mhacwifi1-lan)](https://www.npmjs.com/package/homebridge-mhacwifi1-lan)<br>
+[![Version](https://img.shields.io/npm/v/homebridge-mhacwifi1-lan)](https://www.npmjs.com/package/homebridge-mhacwifi1-lan)
 <img src="https://img.shields.io/badge/node-%3E%3D10.17-brightgreen"> &nbsp;
 <img src="https://img.shields.io/badge/homebridge-%3E%3D1.3.0-brightgreen"> &nbsp;
 
