@@ -135,16 +135,14 @@ export class Aircon {
         if (mode == MhacModeTypes.AUTO) {
             if (currentTemperature > setpoint) {
                 currentState = characteristic.CurrentHeaterCoolerState.COOLING;
-            } else if (currentTemperature < setpoint) {
-                currentState = characteristic.CurrentHeaterCoolerState.HEATING;
             } else {
-                currentState = characteristic.CurrentHeaterCoolerState.INACTIVE;
+                currentState = characteristic.CurrentHeaterCoolerState.HEATING;
             }
         } else if (mode == MhacModeTypes.HEAT) {
             if (currentTemperature < setpoint) {
                 currentState = characteristic.CurrentHeaterCoolerState.HEATING;
             } else {
-                currentState = characteristic.CurrentHeaterCoolerState.INACTIVE;
+                currentState = characteristic.CurrentHeaterCoolerState.IDLE;
             }
         } else if (mode == MhacModeTypes.DRY) {
             currentState = characteristic.CurrentHeaterCoolerState.INACTIVE;
@@ -154,7 +152,7 @@ export class Aircon {
             if (currentTemperature > setpoint) {
                 currentState = characteristic.CurrentHeaterCoolerState.COOLING;
             } else {
-                currentState = characteristic.CurrentHeaterCoolerState.INACTIVE;
+                currentState = characteristic.CurrentHeaterCoolerState.IDLE;
             }
         }
         return currentState;
