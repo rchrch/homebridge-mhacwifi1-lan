@@ -10,15 +10,16 @@ export enum MhacModeTypes {
     COOL = 4,
 }
 
-export let EVENT_CHANGED = 'changed'
-export let EVENT_UPDATED = 'updated'
+export const EVENT_CHANGED = 'changed'
+export const EVENT_UPDATED = 'updated'
 
-type CommandResponseType = any;
+type CommandResponseType = any;         // eslint-disable-line @typescript-eslint/no-explicit-any
 
 type SensorType = {
     uid: number
     value: number
 }
+
 
 /**
  * Hardware interface class for the MH-AC-WIFI-1
@@ -44,11 +45,11 @@ export class MHACWIFI1 extends EventEmitter {
     public minSetpointValue = 18
     public maxSetpointValue = 30
 
-    private sessionID: string = ""
+    private sessionID = ""
     private syncTimeout: NodeJS.Timeout | null = null
-    private sensorMap: any = {}
-    private previousState: any = {}
-    private state: any = {}
+    private sensorMap: any = {}             // eslint-disable-line @typescript-eslint/no-explicit-any
+    private previousState: any = {}         // eslint-disable-line @typescript-eslint/no-explicit-any
+    private state: any = {}                 // eslint-disable-line @typescript-eslint/no-explicit-any
 
     constructor(
         private log: Logger,
@@ -64,17 +65,17 @@ export class MHACWIFI1 extends EventEmitter {
      * Public API for getting state values
      */
     public get = {
-        active: () => this.state.active,
-        currentTemperature: () => this.state.currentTemperature,
-        fanSpeed: () => this.state.fanSpeed,
-        locked: () => this.state.remoteDisable,
-        maxSetpoint: () => this.state.maxSetpoint,
-        minSetpoint: () => this.state.minSetpoint,
-        mode: () => this.state.mode,
-        outdoorTemperature: () => this.state.outdoorTemperature,
-        setpoint: () => this.state.setpoint,
-        swingMode: () => (this.state.verticalPosition == 10) ? 1 : 0,
-        valid: () => typeof this.state.active !== "undefined",
+        active: (): number => this.state.active,
+        currentTemperature: (): number => this.state.currentTemperature,
+        fanSpeed: (): number => this.state.fanSpeed,
+        locked: (): number => this.state.remoteDisable,
+        maxSetpoint: (): number => this.state.maxSetpoint,
+        minSetpoint: (): number => this.state.minSetpoint,
+        mode: (): number => this.state.mode,
+        outdoorTemperature: (): number => this.state.outdoorTemperature,
+        setpoint: (): number => this.state.setpoint,
+        swingMode: (): number => (this.state.verticalPosition == 10) ? 1 : 0,
+        valid: (): boolean => typeof this.state.active !== "undefined",
     };
 
     /**
@@ -82,28 +83,28 @@ export class MHACWIFI1 extends EventEmitter {
      *
      */
     public set = {
-        active: async (value: number) => {
+        active: async (value: number): Promise<void> => {
             this.setState('active', value);
         },
-        fanSpeed: async (value: number) => {
+        fanSpeed: async (value: number): Promise<void> => {
             this.setState('fanSpeed', value);
         },
-        locked: async (value: number) => {
+        locked: async (value: number): Promise<void> => {
             this.setState('remoteDisable', value);
         },
-        maxSetpoint: async (value: number) => {
+        maxSetpoint: async (value: number): Promise<void> => {
             this.setState('maxSetpoint', value);
         },
-        minSetpoint: async (value: number) => {
+        minSetpoint: async (value: number): Promise<void> => {
             this.setState('minSetpoint', value);
         },
-        mode: async (value: number) => {
+        mode: async (value: number): Promise<void> => {
             this.setState('mode', value);
         },
-        setpoint: async (value: number) => {
+        setpoint: async (value: number): Promise<void> => {
             this.setState('setpoint', value);
         },
-        swingMode: async (value: number) => {
+        swingMode: async (value: number): Promise<void> => {
             if (value) {
                 this.setState('verticalPosition', 10);
             } else {
@@ -115,14 +116,14 @@ export class MHACWIFI1 extends EventEmitter {
     /**
      * Enables periodic timer for polling all device sensor states
      */
-    public startSynchronization() {
+    public startSynchronization(): void {
         setImmediate(() => { this.syncState() });
     }
 
     /**
      * Stops the periodic polling for sensor states
      */
-    public stopSynchronization() {
+    public stopSynchronization(): void {
         if (this.syncTimeout)
             clearTimeout(this.syncTimeout);
         this.syncTimeout = null;
@@ -133,8 +134,8 @@ export class MHACWIFI1 extends EventEmitter {
      *
      * @returns Object containing device information such as firmware version
      */
-    public async getInfo() {
-        let result = await this.httpRequest("getinfo", {})
+    public async getInfo(): Promise<Record<string, string>> {
+        const result = await this.httpRequest("getinfo", {})
         return result.info
     }
 
@@ -143,8 +144,8 @@ export class MHACWIFI1 extends EventEmitter {
      *
      * @returns Session ID if login is successful
      */
-    public async login() {
-        let result = await this.httpRequest("login", { username: this.username, password: this.password })
+    public async login(): Promise<string> {
+        const result = await this.httpRequest("login", { username: this.username, password: this.password })
         this.sessionID = result.id.sessionID
         this.previousState = {}
         this.state = {}
@@ -154,7 +155,7 @@ export class MHACWIFI1 extends EventEmitter {
     /**
      * Performs device logout
      */
-    public async logout() {
+    public async logout(): Promise<void> {
         await this.httpRequest("logout");
         this.resetState()
     }
@@ -164,8 +165,8 @@ export class MHACWIFI1 extends EventEmitter {
      *
      * @returns List of service commands available on device
      */
-    public async getAvailableServices() {
-        let result = await this.httpRequest("getavailableservices")
+    public async getAvailableServices(): Promise<string[]> {
+        const result = await this.httpRequest("getavailableservices")
         return result.userinfo.servicelist
     }
 
@@ -174,8 +175,8 @@ export class MHACWIFI1 extends EventEmitter {
      *
      * @returns List of service commands available on device
      */
-    public async getAvailableDatapoints() {
-        let result = await this.httpRequest("getavailabledatapoints")
+    public async getAvailableDatapoints(): Promise<Record<string, unknown>> {
+        const result = await this.httpRequest("getavailabledatapoints")
         return result.dp.datapoints
     }
 
@@ -186,8 +187,8 @@ export class MHACWIFI1 extends EventEmitter {
      * "state" object variable.
      *
      */
-    public async refreshState() {
-        let result = await this.httpRequest("getdatapointvalue", { uid: "all" })
+    public async refreshState(): Promise<void>  {
+        const result = await this.httpRequest("getdatapointvalue", { uid: "all" })
         this.parseState(result.dpval)
     }
 
@@ -238,10 +239,10 @@ export class MHACWIFI1 extends EventEmitter {
 
         if (this.sessionID) {
             // this.log.debug('Refreshing state')
-            let start = Date.now()
+            const start = Date.now()
             await this.refreshState()
                 .then(() => {
-                    let query_time = Date.now() - start;
+                    const query_time = Date.now() - start;
                     if (query_time > this.slowThreshold) {
                         this.log.warn(`Slow response time from ${this.ip} query time ${query_time}ms`);
                     }
@@ -259,7 +260,7 @@ export class MHACWIFI1 extends EventEmitter {
     /**
      * Clears all state information and sessionID
      */
-    private resetState() {
+    private resetState(): void {
         this.sessionID = "";
         this.previousState = {}
         this.state = {}
@@ -270,9 +271,9 @@ export class MHACWIFI1 extends EventEmitter {
      *
      * @param states
      */
-    private parseState(sensors: SensorType[]) {
+    private parseState(sensors: SensorType[]): void {
         sensors.forEach(item => {
-            let map = this.sensorMap[item.uid];
+            const map = this.sensorMap[item.uid];
             if (!map) {
                 this.log.error('Unhandled sensor item', item);
                 return;
@@ -313,8 +314,8 @@ export class MHACWIFI1 extends EventEmitter {
      * @param value Normalized value (will be mapped into device specific value)
      */
     private async setState(attr: string, value: number) {
-        let map = this.sensorMap[attr];
-        let xvalue = map.xform ? map.xform(value) : value
+        const map = this.sensorMap[attr];
+        const xvalue = map.xform ? map.xform(value) : value
         this.log.debug(`setState attr=${attr}, uid=${map.uid}, value=${xvalue}`);
         await this.httpRequest("setdatapointvalue", { uid: map.uid, value: xvalue });
         this.state[attr] = value;
@@ -332,13 +333,13 @@ export class MHACWIFI1 extends EventEmitter {
      * @param data      Parameters associated with the command
      * @returns         JSON data returned by the device
      */
-    private httpRequest(command: string, data: object = {}) {
+    private httpRequest(command: string, data: Record<string, unknown> = {}) {
         if (command != "getdatapointvalue") {
             // Log before adding credentials
             this.log.debug(`httpRequest: ${command} ${JSON.stringify(data)}`)
         }
-        data['sessionID'] = this.sessionID;
-        const payload = JSON.stringify({ command: command, data: data });
+        data['sessionID'] = this.sessionID
+        const payload = JSON.stringify({ command: command, data: data })
 
         const options = {
             hostname: this.ip,
@@ -348,35 +349,35 @@ export class MHACWIFI1 extends EventEmitter {
                 "Content-Length": payload.length,
                 "Content-Type": "application/json"
             }
-        };
+        }
 
         return new Promise<CommandResponseType>((resolve, reject) => {
             const req = http.request(options, (res) => {
                 if (res.statusCode != 200) {
-                    this.log.debug(`Received http error code ${res.statusCode} for ${command}`);
+                    this.log.debug(`Received http error code ${res.statusCode} for ${command}`)
                     reject({ code: res.statusCode, message: "Invalid HTTP response" })
                 }
 
-                let buffer = new Array();
+                const buffer: string[] = []
                 res.on("data", (chunk: string) => buffer.push(chunk));
                 res.on("end", () => {
-                    let content = buffer.join("").toString();
-                    let result = JSON.parse(content);
+                    const content = buffer.join("").toString()
+                    const result = JSON.parse(content)
                     if (result.success) {
-                        resolve(result.data);
+                        resolve(result.data)
                     } else {
                         this.log.debug(`Received http error response: ${content}`)
-                        reject(result);
+                        reject(result)
                     }
                 });
             });
 
             req.on("error", (error) => {
                 this.log.error(`Http request error: ${error}`)
-                reject(error);
+                reject(error)
             });
-            req.write(payload);
-            req.end();
+            req.write(payload)
+            req.end()
         });
     }
 
@@ -386,10 +387,10 @@ export class MHACWIFI1 extends EventEmitter {
      */
     private _buildSensorMap() {
         SensorConfigMap.forEach(sensor => {
-            let rev_values = {}
+            const rev_values = {}
             for (const key in sensor.values) {
-                rev_values[sensor.values[key]] = key;
-            };
+                rev_values[sensor.values[key]] = key
+            }
 
             this.sensorMap[sensor.uid] = {
                 attr: sensor.attr,
@@ -402,9 +403,9 @@ export class MHACWIFI1 extends EventEmitter {
                     values: rev_values,
                     xform: sensor.toVal,
 
-                };
+                }
             }
-        });
+        })
 
     }
 }
@@ -524,4 +525,4 @@ const SensorConfigMap = [
     { uid: 182 },       // ignore this code
     { uid: 183 },       // ignore this code
     { uid: 184 },       // ignore this code
-];
+]

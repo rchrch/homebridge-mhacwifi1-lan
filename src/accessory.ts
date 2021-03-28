@@ -25,17 +25,19 @@ export class AirconAccessory {
         accessory: PlatformAccessory,
         config: MHACConfig,
     ) {
-        let context = accessory.context
-        let Characteristic = platform.Characteristic
+        const Characteristic = platform.Characteristic
         device.on(EVENT_UPDATED, this.updateHomeBridgeState.bind(this))
 
         // set accessory information
-        accessory.getService(platform.Service.AccessoryInformation)!
+        const service = accessory.getService(platform.Service.AccessoryInformation)
+        if (service) {
+            service
             .setCharacteristic(Characteristic.Identify, false)
             .setCharacteristic(Characteristic.Manufacturer, MANUFACTURER)
             .setCharacteristic(Characteristic.Model, MODEL)
             .setCharacteristic(Characteristic.SerialNumber, config.info.sn)
             .setCharacteristic(Characteristic.FirmwareRevision, config.info.fwVersion)
+        }
 
         // Add the relavant accessories
         this.aircon = new AirconService(platform, accessory, device)
@@ -43,7 +45,7 @@ export class AirconAccessory {
         this.dehumidifier = new DehumidifierService(platform, accessory, device)
     }
 
-    async updateHomeBridgeState() {
+    async updateHomeBridgeState(): Promise<void> {
         this.aircon.updateHomeBridgeState()
         this.fan.updateHomeBridgeState()
         this.dehumidifier.updateHomeBridgeState()
@@ -64,23 +66,25 @@ export class OutdoorTemperatureAccessory {
         accessory: PlatformAccessory,
         config: MHACConfig,
     ) {
-        let context = accessory.context
-        let Characteristic = platform.Characteristic
+        const Characteristic = platform.Characteristic
         device.on(EVENT_UPDATED, this.updateHomeBridgeState.bind(this))
 
         // set accessory information
-        accessory.getService(platform.Service.AccessoryInformation)!
+        const service = accessory.getService(platform.Service.AccessoryInformation)
+        if (service) {
+            service
             .setCharacteristic(Characteristic.Name, 'Outdoor')
             .setCharacteristic(Characteristic.Identify, false)
             .setCharacteristic(Characteristic.Manufacturer, MANUFACTURER)
             .setCharacteristic(Characteristic.Model, MODEL)
             .setCharacteristic(Characteristic.SerialNumber, config.info.sn)
             .setCharacteristic(Characteristic.FirmwareRevision, config.info.fwVersion)
+        }
 
         this.temperature = new OutdoorTemperatureService(platform, accessory, device)
     }
 
-    async updateHomeBridgeState() {
+    async updateHomeBridgeState(): Promise<void> {
         this.temperature.updateHomeBridgeState()
     }
 }

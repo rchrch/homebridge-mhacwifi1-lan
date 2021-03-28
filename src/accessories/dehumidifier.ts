@@ -5,14 +5,13 @@ import { MhacModeTypes, MHACWIFI1 } from './device';
 export class DehumidifierService {
 
     private service: Service;
-    private debounce: any = { speed: null };
 
     constructor(
         private readonly platform: MitsubishiHeavyAirconPlatform,
         accessory: PlatformAccessory,
         private readonly device: MHACWIFI1
     ) {
-        let Characteristic = platform.Characteristic;
+        const Characteristic = platform.Characteristic;
 
         // Create the dehumidifier service
         // Implemented characteristics:
@@ -50,7 +49,7 @@ export class DehumidifierService {
 
     }
 
-    updateHomeBridgeState() {
+    updateHomeBridgeState(): void {
         if (!this.device.get.valid())
             return
         this.syncCharacteristic('Active', this.getActive());
@@ -60,14 +59,14 @@ export class DehumidifierService {
         this.syncCharacteristic('TargetHumidifierDehumidifierState', this.getTargetHumidifierDehumidifierState());
     }
 
-    private syncCharacteristic(characteristic: string, value: number) {
+    private syncCharacteristic(characteristic: string, value: number): void {
         if (this.service.getCharacteristic(this.platform.Characteristic[characteristic]).value != value) {
             this.platform.log.debug(`Updating homebridge characteristics Dehumidifier.${characteristic} => ${value}`)
             this.service.getCharacteristic(this.platform.Characteristic[characteristic]).updateValue(value)
         }
     }
 
-    private checkValid() {
+    private checkValid(): void {
         if (!this.device.get.valid())
             throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE)
     }
@@ -75,13 +74,13 @@ export class DehumidifierService {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private getActive(): number {
         this.checkValid()
-        let active = this.device.get.active();
-        let mode = this.device.get.mode();
-        return active && mode == MhacModeTypes.DRY;
+        const active = this.device.get.active();
+        const mode = this.device.get.mode();
+        return active && mode == MhacModeTypes.DRY ? this.platform.Characteristic.Active.ACTIVE : this.platform.Characteristic.Active.INACTIVE
     }
 
     private async setActive(value: CharacteristicValue) {
-        let active = value as number;
+        const active = value as number;
         this.platform.log.debug(`Set characteristic HumidifierDehumidifier.Active -> ${value}`);
         if (active) {
             this.device.set.mode(MhacModeTypes.DRY);
@@ -92,8 +91,8 @@ export class DehumidifierService {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private getCurrentHumidifierDehumidifierState(): number {
         this.checkValid()
-        let active = this.device.get.active();
-        let mode = this.device.get.mode();
+        const active = this.device.get.active();
+        const mode = this.device.get.mode();
         if (active && mode == MhacModeTypes.DRY) {
             return this.platform.Characteristic.CurrentHumidifierDehumidifierState.DEHUMIDIFYING
         } else {
@@ -104,8 +103,8 @@ export class DehumidifierService {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private getRelativeHumidityDehumidifierThreshold(): number {
         this.checkValid()
-        let active = this.device.get.active();
-        let mode = this.device.get.mode();
+        const active = this.device.get.active();
+        const mode = this.device.get.mode();
         return (active && mode == MhacModeTypes.DRY) ? 50 : 0;
     }
 
@@ -116,21 +115,20 @@ export class DehumidifierService {
     }
 
     private async setRotationSpeed(value: CharacteristicValue) {
-        let hw_value = Math.ceil(value as number / 25);
-        this.platform.log.debug(`Set characteristic HumidifierDehumidifier.RotationSpeed -> ${hw_value}`);
-        clearTimeout(this.debounce.speed)
-        this.debounce.speed = setTimeout(() => { this.platform.log.debug(`setting hw to ${hw_value}`); this.device.set.fanSpeed(hw_value); }, 500);
+        const hw_value = Math.ceil(value as number / 25)
+        this.platform.log.debug(`Set characteristic HumidifierDehumidifier.RotationSpeed -> ${hw_value}`)
+        this.device.set.fanSpeed(hw_value)
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private getSwingMode(): number {
         this.checkValid()
-        return this.device.get.swingMode();
+        return this.device.get.swingMode()
     }
 
     private async setSwingMode(value: CharacteristicValue) {
-        let swing = value as number;
-        this.platform.log.debug(`Set characteristic HumidifierDehumidifier.SwingMode -> ${swing}`);
-        this.device.set.swingMode(swing);
+        const swing = value as number
+        this.platform.log.debug(`Set characteristic HumidifierDehumidifier.SwingMode -> ${swing}`)
+        this.device.set.swingMode(swing)
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -13,7 +13,7 @@ export type MHACConfig = {
     password: string
     outdoorTemperature: boolean
     mac: string
-    info: any     // TODO define this structure
+    info: Record<string, string>     // TODO define this structure
 }
 
 
@@ -43,12 +43,12 @@ export class MitsubishiHeavyAirconPlatform implements DynamicPlatformPlugin {
      * This function is invoked when homebridge restores cached accessories from disk at startup.
      * It should be used to setup event handlers for characteristics and update respective values.
      */
-    configureAccessory(accessory: PlatformAccessory) {
+    configureAccessory(accessory: PlatformAccessory): void {
         this.log.info('Loading accessory from cache:', accessory.displayName);
         this.accessories.push(accessory);
     }
 
-    private async discoverDevices() {
+    private async discoverDevices(): Promise<void> {
 
         if (!this.config.devices) {
             this.log.warn('No devices defined - add devices to the config')
@@ -70,7 +70,7 @@ export class MitsubishiHeavyAirconPlatform implements DynamicPlatformPlugin {
 
     private async discoverDevice(config: MHACConfig) {
         this.log.info(`Checking for device at ${config.host}`)
-        let device = new MHACWIFI1(this.log, config.host, "", "");
+        const device = new MHACWIFI1(this.log, config.host, "", "");
         await device.getInfo()
             .then(info => {
                 config.info = info;
@@ -86,10 +86,10 @@ export class MitsubishiHeavyAirconPlatform implements DynamicPlatformPlugin {
             })
     }
 
-    private addDevice(config: MHACConfig) {
+    private addDevice(config: MHACConfig): void {
 
         // Create the inteface to the controller
-        let device = new MHACWIFI1(this.log, config.host, config.username, config.password)
+        const device = new MHACWIFI1(this.log, config.host, config.username, config.password)
         device.startSynchronization()
 
         let uuid = this.api.hap.uuid.generate('aircon' + config.mac);

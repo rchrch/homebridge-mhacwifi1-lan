@@ -5,14 +5,13 @@ import { MhacModeTypes, MHACWIFI1 } from './device';
 export class AirconService {
 
     private service: Service;
-    private debounce: any = { speed: null };
 
     constructor(
         private readonly platform: MitsubishiHeavyAirconPlatform,
         private readonly accessory: PlatformAccessory,
         private readonly device: MHACWIFI1
     ) {
-        let Characteristic = platform.Characteristic;
+        const Characteristic = platform.Characteristic;
 
         // Create the HeaterCooler service
         // Implemented characteristics:
@@ -69,7 +68,7 @@ export class AirconService {
             .onSet(this.setTemperatureDisplayUnits.bind(this));
     }
 
-    updateHomeBridgeState() {
+    updateHomeBridgeState(): void {
         if (!this.device.get.valid())
             return
         this.syncCharacteristic('Active', this.getActive())
@@ -83,14 +82,14 @@ export class AirconService {
         this.syncCharacteristic('TargetHeaterCoolerState', this.getTargetHeaterCoolerState())
     }
 
-    private syncCharacteristic(characteristic: string, value: number) {
+    private syncCharacteristic(characteristic: string, value: number): void {
         if (this.service.getCharacteristic(this.platform.Characteristic[characteristic]).value != value) {
             this.platform.log.debug(`Updating homebridge characteristics HeaterCooler.${characteristic} => ${value}`)
             this.service.getCharacteristic(this.platform.Characteristic[characteristic]).updateValue(value)
         }
     }
 
-    private checkValid() {
+    private checkValid(): void {
         if (!this.device.get.valid())
             throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE)
     }
@@ -98,14 +97,14 @@ export class AirconService {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private getActive(): number {
         this.checkValid()
-        let active = this.device.get.active();
-        let mode = this.device.get.mode();
+        const active = this.device.get.active();
+        const mode = this.device.get.mode();
         return (active && [MhacModeTypes.AUTO, MhacModeTypes.COOL, MhacModeTypes.HEAT].includes(mode)) ?
             this.platform.Characteristic.Active.ACTIVE : this.platform.Characteristic.Active.INACTIVE;
     }
 
     private async setActive(value: CharacteristicValue) {
-        let active = value as number
+        const active = value as number
         this.platform.log.debug(`Set characteristic HeaterCooler.Active -> ${value}`)
         this.device.set.active(active)
     }
@@ -117,7 +116,7 @@ export class AirconService {
     }
 
     private async setCoolingThresholdTemperature(value: CharacteristicValue) {
-        let setpoint = value as number;
+        const setpoint = value as number;
         this.platform.log.debug(`Set characteristic HeaterCooler.CoolingThresholdTemperature -> ${setpoint}`);
         this.device.set.setpoint(setpoint);
     }
@@ -127,10 +126,10 @@ export class AirconService {
         this.checkValid()
 
         let currentState: number;
-        let characteristic = this.platform.Characteristic;
-        let mode = this.device.get.mode();
-        let currentTemperature = this.device.get.currentTemperature()
-        let setpoint = this.device.get.setpoint();
+        const characteristic = this.platform.Characteristic;
+        const mode = this.device.get.mode();
+        const currentTemperature = this.device.get.currentTemperature()
+        const setpoint = this.device.get.setpoint();
 
         if (mode == MhacModeTypes.AUTO) {
             if (currentTemperature > setpoint) {
@@ -171,7 +170,7 @@ export class AirconService {
     }
 
     private async setHeatingThresholdTemperature(value: CharacteristicValue) {
-        let setpoint = value as number;
+        const setpoint = value as number;
         this.platform.log.debug(`Set characteristic HeaterCooler.HeatingThresholdTemperature -> ${setpoint}`);
         this.device.set.setpoint(setpoint);
     }
@@ -183,7 +182,7 @@ export class AirconService {
     }
 
     private async setLockPhysicalControls(value: CharacteristicValue) {
-        let locked = value as number;
+        const locked = value as number;
         this.platform.log.debug(`Set characteristic HeaterCooler.LockPhysicalControls -> ${locked}`);
         this.device.set.locked(locked ? 1 : 0);
     }
@@ -195,10 +194,9 @@ export class AirconService {
     }
 
     private async setRotationSpeed(value: CharacteristicValue) {
-        let hw_value = Math.max(1, Math.ceil(value as number / 25))
+        const hw_value = Math.max(1, Math.ceil(value as number / 25))
         this.platform.log.debug(`Set characteristic HeaterCooler.RotationSpeed -> ${hw_value}`)
-        clearTimeout(this.debounce.speed)
-        this.debounce.speed = setTimeout(() => { this.platform.log.debug(`setting hw to ${hw_value}`); this.device.set.fanSpeed(hw_value); }, 500)
+        this.device.set.fanSpeed(hw_value)
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -208,7 +206,7 @@ export class AirconService {
     }
 
     private async setSwingMode(value: CharacteristicValue) {
-        let swing = value as number;
+        const swing = value as number;
         this.platform.log.debug(`Set characteristic HeaterCooler.SwingMode -> ${swing}`);
         this.device.set.swingMode(swing);
     }
@@ -216,7 +214,7 @@ export class AirconService {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private getTargetHeaterCoolerState(): number {
         this.checkValid()
-        let characteristic = this.platform.Characteristic;
+        const characteristic = this.platform.Characteristic;
         switch (this.device.get.mode()) {
             case MhacModeTypes.AUTO:
                 return characteristic.TargetHeaterCoolerState.AUTO;
@@ -233,7 +231,6 @@ export class AirconService {
     }
 
     private async setTargetHeaterCoolerState(value: CharacteristicValue) {
-        let characteristic = this.platform.Characteristic;
         let mode: number | null = null;
 
         switch (value) {

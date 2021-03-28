@@ -5,14 +5,13 @@ import { MhacModeTypes, MHACWIFI1 } from './device';
 export class FanService {
 
     private service: Service;
-    private debounce: any = { speed: null };
 
     constructor(
         private readonly platform: MitsubishiHeavyAirconPlatform,
         accessory: PlatformAccessory,
         private readonly device: MHACWIFI1
     ) {
-        let Characteristic = platform.Characteristic;
+        const Characteristic = platform.Characteristic;
 
         // Create the fan service
         // Implemented characteristics:
@@ -35,7 +34,7 @@ export class FanService {
             .onSet(this.setSwingMode.bind(this));
     }
 
-    updateHomeBridgeState() {
+    updateHomeBridgeState(): void {
         if (!this.device.get.valid())
             return
         this.syncCharacteristic('Active', this.getActive())
@@ -43,14 +42,14 @@ export class FanService {
         this.syncCharacteristic('SwingMode', this.getSwingMode())
     }
 
-    syncCharacteristic(characteristic: string, value: number) {
+    syncCharacteristic(characteristic: string, value: number): void {
         if (this.service.getCharacteristic(this.platform.Characteristic[characteristic]).value != value) {
             this.platform.log.debug(`Updating homebridge characteristics Fan.${characteristic} => ${value}`)
             this.service.getCharacteristic(this.platform.Characteristic[characteristic]).updateValue(value)
         }
     }
 
-    private checkValid() {
+    private checkValid():  void {
         if (!this.device.get.valid())
             throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE)
     }
@@ -58,13 +57,13 @@ export class FanService {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private getActive(): number {
         this.checkValid()
-        let active = this.device.get.active();
-        let mode = this.device.get.mode();
+        const active = this.device.get.active();
+        const mode = this.device.get.mode();
         return (active && mode == MhacModeTypes.FAN) ? 1 : 0;
     }
 
     private async setActive(value: CharacteristicValue) {
-        let active = value as number;
+        const active = value as number;
         this.platform.log.debug(`Set characteristic Fan.Active -> ${value}`);
         if (active) {
             this.device.set.mode(MhacModeTypes.FAN);
@@ -80,11 +79,9 @@ export class FanService {
 
     private async setRotationSpeed(value: CharacteristicValue) {
         this.checkValid()
-        let hw_value = Math.ceil(value as number / 25)
+        const hw_value = Math.ceil(value as number / 25)
         this.platform.log.debug(`Set characteristic Fan.RotationSpeed -> ${hw_value}`)
         this.device.set.fanSpeed(hw_value)
-        clearTimeout(this.debounce.speed)
-        this.debounce.speed = setTimeout(() => { this.device.set.fanSpeed(hw_value); }, 500)
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private getSwingMode(): number {
@@ -92,7 +89,7 @@ export class FanService {
     }
 
     private async setSwingMode(value: CharacteristicValue) {
-        let swing = value as number
+        const swing = value as number
         this.platform.log.debug(`Set characteristic Fan.SwingMode -> ${swing}`)
         this.device.set.swingMode(swing)
     }
