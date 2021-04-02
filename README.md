@@ -78,8 +78,8 @@ Additional devices may be added as new platforms.  If you need to customise the 
 
 | Config | Description | Default |
 | ------ | ----------- | ------- |
-| name | Name you want to identify the aircon by | <required> |
-| host | IP address or hostname of the device | <required> |
+| name | Name you want to identify the aircon by | *required* |
+| host | IP address or hostname of the device | *required* |
 | username | Login name | admin |
 | password | Login password | admin|
 | outdoorTemperature | Enables outdoor temperature sensor | true |
