@@ -16,9 +16,11 @@ The plugin creates the following Homekit accessories:
 
 For instructions on installing Homebridge look [here](https://github.com/homebridge/homebridge/wiki).
 
-The plugin may be installed via the Hombridge Config UI or via npm.
+The plugin may be installed via the Homebridge Config UI or via npm.
 
-TODO: npm install .....
+To install under the Homebridge UI, click on "Plugins" and search for "mhacwifi1-lan".  Click on the "INSTALL" link for "Homebridge Mhacwifi1 Lan".
+
+If you are not using the Homebridge UI, install with `npm install homebridge-mhacwifi1-lan`.
 
 
 ## Configuration
@@ -31,13 +33,14 @@ The only required configuration for this plugin are the username, password, and 
 
 ```json
 {
-    "platform": "MH-AC-WIFI-1",
-    "username": "admin",
-    "password": "admin",
-    "devices": [
+    ...
+    "platforms": [
         {
+            "platform": "MH-AC-WIFI-1",
             "name": "My Aircon",
             "host": "192.168.1.100",
+            "username": "admin",
+            "password": "admin",
         }
     ]
 }
@@ -45,30 +48,45 @@ The only required configuration for this plugin are the username, password, and 
 
 ### Optional
 
-Additional devices may be added to the `devices` list.  If you need to customise the username or password per device, you can add these values to the device entry.  Additionally, you can disable the outdoor temperature sensor by setting `outdoorTemperature` to false.
+Additional devices may be added as new platforms.  If you need to customise the username or password per device, you can add these values .  Additionally, you can disable the outdoor temperature sensor by setting `outdoorTemperature` to false.
 
 ```json
-...
 {
-   "platform": "MH-AC-WIFI-1",
-   "devices": [
-       {
-           "name": "Lounge",
-           "host": "192.168.1.100",
-           "username": "admin-1",
-           "password": "password-1",
-           "outdoorTemperature": true
-       },
-       {
-           "name": "Bedroom",
-           "host": "192.168.1.101",
-           "username": "admin-2",
-           "password": "password-2",
-           "outdoorTemperature": false
-       }
-   ]
+    ...
+    "platforms": [
+        {
+            "platform": "MH-AC-WIFI-1",
+            "name": "Lounge",
+            "host": "192.168.1.100",
+            "username": "admin-1",
+            "password": "password-1",
+            "outdoorTemperature": true
+        },
+        {
+            "platform": "MH-AC-WIFI-1",
+            "name": "Bedroom",
+            "host": "192.168.1.101",
+            "username": "admin-2",
+            "password": "password-2",
+            "outdoorTemperature": false
+        }
+    ]
 }
 ```
+
+### All config options
+
+    | Config | Description | Default |
+    | ------ | ----------- | ------- |
+    | name | Name you want to identify the aircon by | <required> |
+    | host | IP address or hostname of the device | <required> |
+    | username | Login name | admin |
+    | password | Login password | admin|
+    | outdoorTemperature | Enables outdoor temperature sensor | true |
+    | minSetpoint | Minimum allowed temperature | 18 |
+    | maxSetpoint | Maximum allowed temperature | 30 |
+    | slowThreshold | Number of milliseonds before logging slow require | 500 |
+    | syncPeriod | Number of milliseconds between sesor value polling requests | 1000 |
 
 ## Known Issues
 
