@@ -76,17 +76,17 @@ Additional devices may be added as new platforms.  If you need to customise the 
 
 ### All config options
 
-    | Config | Description | Default |
-    | ------ | ----------- | ------- |
-    | name | Name you want to identify the aircon by | <required> |
-    | host | IP address or hostname of the device | <required> |
-    | username | Login name | admin |
-    | password | Login password | admin|
-    | outdoorTemperature | Enables outdoor temperature sensor | true |
-    | minSetpoint | Minimum allowed temperature | 18 |
-    | maxSetpoint | Maximum allowed temperature | 30 |
-    | slowThreshold | Number of milliseonds before logging slow require | 500 |
-    | syncPeriod | Number of milliseconds between sesor value polling requests | 1000 |
+| Config | Description | Default |
+| ------ | ----------- | ------- |
+| name | Name you want to identify the aircon by | <required> |
+| host | IP address or hostname of the device | <required> |
+| username | Login name | admin |
+| password | Login password | admin|
+| outdoorTemperature | Enables outdoor temperature sensor | true |
+| minSetpoint | Minimum allowed temperature | 18 |
+| maxSetpoint | Maximum allowed temperature | 30 |
+| slowThreshold | Number of milliseonds before logging slow require | 500 |
+| syncPeriod | Number of milliseconds between sesor value polling requests | 1000 |
 
 ## Known Issues
 
