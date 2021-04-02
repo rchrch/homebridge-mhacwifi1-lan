@@ -1,10 +1,26 @@
 {
   "pluginAlias": "MH-AC-WIFI-1",
   "pluginType": "platform",
-  "singular": true,
+  "singular": false,
   "schema": {
     "type": "object",
     "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "required": true,
+        "default": "My Aircon"
+      },
+      "host": {
+        "title": "Host/IP",
+        "type": "string",
+        "required": true
+      },
+      "outdoorTemperature": {
+        "title": "Create outdoor temperature sensor",
+        "type": "boolean",
+        "default": true
+      },
       "username": {
         "title": "Username",
         "type": "string",
@@ -17,44 +33,62 @@
         "required": true,
         "default": "admin"
       },
-      "devices": {
-        "title": "Devices:",
-        "type": "array",
-        "items": {
-          "title": "Device",
-          "type": "object",
-          "properties": {
-            "name": {
-              "title": "Name",
-              "type": "string",
-              "required": true,
-              "default": "My Aircon"
-            },
-            "host": {
-              "title": "Host/IP",
-              "type": "string",
-              "required": true
-            },
-            "outdoorTemperature": {
-              "title": "Create outdoor temperature sensor",
-              "type": "boolean",
-              "default": true
-            },
-            "username": {
-              "title": "Username (optional - use global value if not provided)",
-              "type": "string",
-              "required": false,
-              "default": ""
-            },
-            "password": {
-              "title": "Password (optional - use global value if not provided)",
-              "type": "string",
-              "required": false,
-              "default": ""
-            }
-          }
-        }
+      "minSetpoint": {
+        "title": "Minimal allowed temperature (celsius)",
+        "type": "number",
+        "required": false,
+        "placeholder": "18",
+        "minimum": 18,
+        "maximum": 30
+      },
+      "maxSetpoint": {
+        "title": "Maximum allowed temperature (celsius)",
+        "type": "number",
+        "required": false,
+        "placeholder": "30",
+        "minimum": 18,
+        "maximum": 30
+      },
+      "slowThreshold": {
+        "title": "Slow response threshold (milliseconds)",
+        "type": "number",
+        "required": false,
+        "default": "500",
+        "minimum": 100
+      },
+      "syncPeriod": {
+        "title": "Polling time for requesting sensor data (milliseconds)",
+        "type": "number",
+        "required": false,
+        "placeholder": "1000",
+        "minimum": 1000,
+        "maximum": 5000
       }
     }
-  }
+  },
+  "layout": [
+    "name",
+    "host",
+    "outdoorTemperature",
+    {
+      "type": "fieldset",
+      "title": "Authentication",
+      "expandable": true,
+      "items": [
+        "username",
+        "password"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Advanced Settings",
+      "expandable": true,
+      "items": [
+        "slowThreshold",
+        "minSetpoint",
+        "maxSetpoint",
+        "syncPeriod"
+      ]
+    }
+  ]
 }

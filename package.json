@@ -28,7 +28,8 @@
     "mitsubishi",
     "aircon",
     "mhacwifi1",
-    "mh-ac-wifi-1"
+    "mh-ac-wifi-1",
+    "intesis"
   ],
   "dependencies": {},
   "devDependencies": {

@@ -1,10 +1,10 @@
-import { PlatformAccessory } from 'homebridge'
+import { PlatformAccessory, PlatformConfig } from 'homebridge'
 import { AirconService } from "./accessories/aircon"
 import { DehumidifierService } from "./accessories/dehumidifier"
 import { EVENT_UPDATED, MHACWIFI1 } from './accessories/device'
 import { FanService } from "./accessories/fan"
 import { OutdoorTemperatureService } from "./accessories/outdoor"
-import { MHACConfig, MitsubishiHeavyAirconPlatform } from './platform'
+import { MitsubishiHeavyAirconPlatform } from './platform'
 
 
 const MANUFACTURER = "Mitsubishi Heavy Industries"
@@ -23,7 +23,7 @@ export class AirconAccessory {
         device: MHACWIFI1,
         platform: MitsubishiHeavyAirconPlatform,
         accessory: PlatformAccessory,
-        config: MHACConfig,
+        config: PlatformConfig,
     ) {
         const Characteristic = platform.Characteristic
         device.on(EVENT_UPDATED, this.updateHomeBridgeState.bind(this))
@@ -32,11 +32,11 @@ export class AirconAccessory {
         const service = accessory.getService(platform.Service.AccessoryInformation)
         if (service) {
             service
-            .setCharacteristic(Characteristic.Identify, false)
-            .setCharacteristic(Characteristic.Manufacturer, MANUFACTURER)
-            .setCharacteristic(Characteristic.Model, MODEL)
-            .setCharacteristic(Characteristic.SerialNumber, config.info.sn)
-            .setCharacteristic(Characteristic.FirmwareRevision, config.info.fwVersion)
+                .setCharacteristic(Characteristic.Identify, false)
+                .setCharacteristic(Characteristic.Manufacturer, MANUFACTURER)
+                .setCharacteristic(Characteristic.Model, MODEL)
+                .setCharacteristic(Characteristic.SerialNumber, config.info.sn)
+                .setCharacteristic(Characteristic.FirmwareRevision, config.info.fwVersion)
         }
 
         // Add the relavant accessories
@@ -64,7 +64,7 @@ export class OutdoorTemperatureAccessory {
         device: MHACWIFI1,
         platform: MitsubishiHeavyAirconPlatform,
         accessory: PlatformAccessory,
-        config: MHACConfig,
+        config: PlatformConfig,
     ) {
         const Characteristic = platform.Characteristic
         device.on(EVENT_UPDATED, this.updateHomeBridgeState.bind(this))
@@ -73,12 +73,12 @@ export class OutdoorTemperatureAccessory {
         const service = accessory.getService(platform.Service.AccessoryInformation)
         if (service) {
             service
-            .setCharacteristic(Characteristic.Name, 'Outdoor')
-            .setCharacteristic(Characteristic.Identify, false)
-            .setCharacteristic(Characteristic.Manufacturer, MANUFACTURER)
-            .setCharacteristic(Characteristic.Model, MODEL)
-            .setCharacteristic(Characteristic.SerialNumber, config.info.sn)
-            .setCharacteristic(Characteristic.FirmwareRevision, config.info.fwVersion)
+                .setCharacteristic(Characteristic.Name, 'Outdoor')
+                .setCharacteristic(Characteristic.Identify, false)
+                .setCharacteristic(Characteristic.Manufacturer, MANUFACTURER)
+                .setCharacteristic(Characteristic.Model, MODEL)
+                .setCharacteristic(Characteristic.SerialNumber, config.info.sn)
+                .setCharacteristic(Characteristic.FirmwareRevision, config.info.fwVersion)
         }
 
         this.temperature = new OutdoorTemperatureService(platform, accessory, device)

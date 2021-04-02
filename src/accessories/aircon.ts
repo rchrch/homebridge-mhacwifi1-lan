@@ -33,8 +33,8 @@ export class AirconService {
             .onSet(this.setActive.bind(this))
         this.service.getCharacteristic(Characteristic.CoolingThresholdTemperature)
             .setProps({
-                minValue: this.device.minSetpointValue,
-                maxValue: this.device.maxSetpointValue,
+                minValue: this.device.get.minSetpoint(),
+                maxValue: this.device.get.maxSetpoint(),
             })
             .onGet(this.getCoolingThresholdTemperature.bind(this))
             .onSet(this.setCoolingThresholdTemperature.bind(this));
@@ -44,8 +44,8 @@ export class AirconService {
             .onGet(this.getCurrentHeaterCoolerState.bind(this));
         this.service.getCharacteristic(Characteristic.HeatingThresholdTemperature)
             .setProps({
-                minValue: this.device.minSetpointValue,
-                maxValue: this.device.maxSetpointValue,
+                minValue: this.device.get.minSetpoint(),
+                maxValue: this.device.get.maxSetpoint(),
             })
             .onGet(this.getHeatingThresholdTemperature.bind(this))
             .onSet(this.setHeatingThresholdTemperature.bind(this));

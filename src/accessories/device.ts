@@ -40,24 +40,34 @@ type SensorType = {
  */
 export class MHACWIFI1 extends EventEmitter {
 
-    public syncTimeoutPeriod = 2000
-    public slowThreshold = 400
-    public minSetpointValue = 18
-    public maxSetpointValue = 30
-
     private sessionID = ""
     private syncTimeout: NodeJS.Timeout | null = null
+
     private sensorMap: any = {}             // eslint-disable-line @typescript-eslint/no-explicit-any
     private previousState: any = {}         // eslint-disable-line @typescript-eslint/no-explicit-any
     private state: any = {}                 // eslint-disable-line @typescript-eslint/no-explicit-any
 
     constructor(
         private log: Logger,
-        private ip: string,
-        private username: string,
-        private password: string,
-    ) {
+        private host: string,                            // IP or hostname
+        private username: string,                        // Username used for authentication
+        private password: string,                        // Password used for authentication
+        private slowThreshold: number = 500,             // Number of milliseconds before reporting a slow connection
+        private minSetpoint: number = 18,                // Minimum value for the setpoint temperature
+        private maxSetpoint: number = 30,                // Maximum value for the setpoint temperature
+        private syncPeriod: number = 1000,               // Number of milliseconds between sensor sync requests
+        ) {
         super();
+        this.minSetpoint = Math.max(18, minSetpoint)
+        this.state.minSetpoint = this.minSetpoint
+        this.log.info(`Minimum setpoint is ${this.minSetpoint}`)
+        this.maxSetpoint = Math.min(30, maxSetpoint)
+        this.state.maxSetpoint = this.maxSetpoint
+        this.log.info(`Minimum setpoint is ${this.maxSetpoint}`)
+        this.slowThreshold = slowThreshold || 500
+        this.log.info(`Slow device threshold is ${this.slowThreshold}ms`)
+        this.syncPeriod = Math.max(1000, syncPeriod)
+        this.log.info(`Device sync period is ${this.syncPeriod}ms`)
         this._buildSensorMap();
     }
 
@@ -226,16 +236,18 @@ export class MHACWIFI1 extends EventEmitter {
                     })
 
                 // Set sane defaults
-                await this.set.minSetpoint(this.minSetpointValue)
+                await this.set.minSetpoint(this.minSetpoint)
                     .catch(error => {
                         this.log.error('Unable to get set minSetpoint value', error)
                     })
-                await this.set.maxSetpoint(this.maxSetpointValue)
+                await this.set.maxSetpoint(this.maxSetpoint)
                     .catch(error => {
                         this.log.error('Unable to get set maxSetpoint value', error)
                     })
             }
         }
+
+        let syncPeriod = this.syncPeriod
 
         if (this.sessionID) {
             // this.log.debug('Refreshing state')
@@ -244,7 +256,7 @@ export class MHACWIFI1 extends EventEmitter {
                 .then(() => {
                     const query_time = Date.now() - start;
                     if (query_time > this.slowThreshold) {
-                        this.log.warn(`Slow response time from ${this.ip} query time ${query_time}ms`);
+                        this.log.warn(`Slow response time from ${this.host} query time ${query_time}ms`);
                     }
                     this.checkForChange()
                 })
@@ -252,9 +264,12 @@ export class MHACWIFI1 extends EventEmitter {
                     this.log.error('Unable to refresh state', error);
                     this.resetState()
                 });
+        } else {
+            // Not logged in. slow down the polling
+            syncPeriod = 30000
         }
 
-        this.syncTimeout = setTimeout(async () => { this.syncState() }, this.syncTimeoutPeriod)
+        this.syncTimeout = setTimeout(async () => { this.syncState() }, syncPeriod)
     }
 
     /**
@@ -342,7 +357,7 @@ export class MHACWIFI1 extends EventEmitter {
         const payload = JSON.stringify({ command: command, data: data })
 
         const options = {
-            hostname: this.ip,
+            hostname: this.host,
             path: "/api.cgi",
             method: "POST",
             headers: {
