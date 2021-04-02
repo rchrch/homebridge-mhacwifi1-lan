@@ -3,8 +3,6 @@
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
 
-## [Unreleased]
-
 
 ## [0.2.2] - 2020-04-03
 ### Fixed
