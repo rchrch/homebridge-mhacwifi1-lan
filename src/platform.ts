@@ -1,4 +1,4 @@
-import { API, APIEvent, BridgeConfiguration, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service } from 'homebridge'
+import { API, APIEvent, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service } from 'homebridge'
 import { MHACWIFI1 } from './accessories/device'
 import { AirconAccessory, OutdoorTemperatureAccessory } from './accessory'
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings'
@@ -57,7 +57,7 @@ export class MitsubishiHeavyAirconPlatform implements DynamicPlatformPlugin {
 
     private async discoverDevice(): Promise<void> {
 
-        let config = this.config
+        const config = this.config
 
         if (!config.host) {
             this.log.warn(`Host IP not defined for ${config.name}`)
