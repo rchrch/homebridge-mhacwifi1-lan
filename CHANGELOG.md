@@ -1,0 +1,26 @@
+# Change Log
+
+All notable changes to this plugin will be documented in this file
+
+This project uses Symantic Versioning for releases numbers.
+
+## [Unreleased]
+### Fixed
+* Correctly set PLUGIN_NAME variable to match correct value
+
+
+## [0.2.1] - 2020-04-02
+### Added
+* Added additional optional (advanced) configuration
+
+### Fixed
+* Fixed problem detect by npm lint after tagging 0.2.0
+
+
+## [0.2.0] - 2020-04-02
+### Changed
+* Modified schema to configure devices as individual platforms
+
+
+##  [0.1.0] - 2020-03-31
+* Initial release
