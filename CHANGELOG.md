@@ -1,8 +1,7 @@
 # Change Log
 
-All notable changes to this plugin will be documented in this file
+All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
-This project uses Symantic Versioning for releases numbers.
 
 ## [Unreleased]
 ### Fixed
