@@ -90,11 +90,10 @@ Additional devices may be added as new platforms.  If you need to customise the 
 
 ## Known Issues
 
-From testing the MH-AC-WIFI-1 controller can be slow to respond to commands.  This appears to be normal.  To mitigate frequently queries, the plugin is designed to regularly poll all sensors and provide cached copies.  This update interval is currently set to 2 seconds.
+From testing the MH-AC-WIFI-1 controller can be slow to respond to commands.  This appears to be normal.  To mitigate frequently queries, the plugin is designed to regularly poll all sensors every `syncPeriod` milliseconds.  The update interval is set to 1000 milliseconds by default.  You can get increase/decrease slow request logging by changing the `slowThrehold` value.
 
 ## TODO
 * Device discovery tools
-* Make the update interval configurable (not sure if this is necessary)
 
 
 ## License
