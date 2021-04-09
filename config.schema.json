@@ -53,7 +53,7 @@
         "title": "Slow response threshold (milliseconds)",
         "type": "number",
         "required": false,
-        "default": "500",
+        "placeholder": "500",
         "minimum": 100
       },
       "syncPeriod": {
