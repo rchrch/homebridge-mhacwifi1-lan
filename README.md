@@ -1,8 +1,9 @@
 # Homebridge Plugin for LAN Control of Mitsubishi Heavy Industries MH-AC-WIFI-1
 
-[![Version](https://img.shields.io/npm/v/homebridge-mhacwifi1-lan)](https://www.npmjs.com/package/homebridge-mhacwifi1-lan)
+[![Version](https://img.shields.io/npm/v/homebridge-mhacwifi1-lan)](https://www.npmjs.com/package/homebridge-mhacwifi1-lan) &nbsp;
 <img src="https://img.shields.io/badge/node-%3E%3D10.17-brightgreen"> &nbsp;
 <img src="https://img.shields.io/badge/homebridge-%3E%3D1.3.0-brightgreen"> &nbsp;
+[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins) &nbsp;
 
 This [Homebridge](https://github.com/nfarina/homebridge) plugin allows Mitsubishi Heavy Industries AirCon using the Intesis MH-AC-WIFI-1 controller to be accessible in Apple HomeKit.  It creates a platform device that allows aircons to be configured via the [Homebridge Config UI](https://github.com/oznu/homebridge-config-ui-x) or manually in the Homebridge config.json file.
 
