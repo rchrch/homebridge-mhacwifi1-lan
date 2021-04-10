@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
 
+## [0.2.3] - 2020-04-10
+### Added
+- Added "verified by homebridge" to README
+
 
 ## [0.2.2] - 2020-04-03
 ### Fixed
@@ -29,7 +33,8 @@ All notable changes to this project will be documented in this file. This projec
 ##  0.1.0 - 2020-03-31
 - Initial release
 
-[Unreleased]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.2...main
+[Unreleased]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.3...main
+[0.2.3]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.2...0.2.3
 [0.2.2]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.1...0.2.2
 [0.2.1]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.1.0..0.2.0
