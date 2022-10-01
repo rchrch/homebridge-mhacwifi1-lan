@@ -87,11 +87,11 @@ Additional devices may be added as new platforms.  If you need to customise the 
 | minSetpoint | Minimum allowed temperature | 18 |
 | maxSetpoint | Maximum allowed temperature | 30 |
 | slowThreshold | Number of milliseonds before logging slow require | 500 |
-| syncPeriod | Number of milliseconds between sesor value polling requests | 1000 |
+| syncPeriod | Number of milliseconds between sensor value polling requests | 1000 |
 
 ## Known Issues
 
-From testing the MH-AC-WIFI-1 controller can be slow to respond to commands.  This appears to be normal.  To mitigate frequently queries, the plugin is designed to regularly poll all sensors every `syncPeriod` milliseconds.  The update interval is set to 1000 milliseconds by default.  You can get increase/decrease slow request logging by changing the `slowThrehold` value.
+From testing the MH-AC-WIFI-1 controller can be slow to respond to commands.  This appears to be normal.  To mitigate frequently queries, the plugin is designed to regularly poll all sensors every `syncPeriod` milliseconds.  The update interval is set to 1000 milliseconds by default.  You can get increase/decrease slow request logging by changing the `slowThrehold` value.  It is not recommended to sync faster than 1000 milliseconds.
 
 ## TODO
 * Device discovery tools

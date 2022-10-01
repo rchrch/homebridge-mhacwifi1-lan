@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
 
+## [0.3.0] - 2022-10-02
+### Updated
+- Improved http communication to the hardware by adding error handling while
+  setting state.  Requests are attempted 3 times before failing action.
+
+
 ## [0.2.3] - 2021-04-10
 ### Added
 - Added "verified by homebridge" to README
@@ -33,7 +39,9 @@ All notable changes to this project will be documented in this file. This projec
 ##  0.1.0 - 2021-03-31
 - Initial release
 
-[Unreleased]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.3...main
+
+[Unreleased]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.3.0...main
+[0.3.0]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.3...0.3.0
 [0.2.3]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.2...0.2.3
 [0.2.2]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.1...0.2.2
 [0.2.1]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.0...0.2.1
