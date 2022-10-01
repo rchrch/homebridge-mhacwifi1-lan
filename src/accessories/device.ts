@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { Logger } from 'homebridge';
 import * as http from 'http';
+import sleep from 'sleep-promise';
 
 export enum MhacModeTypes {
     AUTO = 0,
@@ -56,7 +57,7 @@ export class MHACWIFI1 extends EventEmitter {
         private minSetpoint: number = 18,                // Minimum value for the setpoint temperature
         private maxSetpoint: number = 30,                // Maximum value for the setpoint temperature
         private syncPeriod: number = 1000,               // Number of milliseconds between sensor sync requests
-        ) {
+    ) {
         super();
         this.minSetpoint = Math.max(18, minSetpoint)
         this.state.minSetpoint = this.minSetpoint
@@ -197,7 +198,7 @@ export class MHACWIFI1 extends EventEmitter {
      * "state" object variable.
      *
      */
-    public async refreshState(): Promise<void>  {
+    public async refreshState(): Promise<void> {
         const result = await this.httpRequest("getdatapointvalue", { uid: "all" })
         this.parseState(result.dpval)
     }
@@ -331,10 +332,26 @@ export class MHACWIFI1 extends EventEmitter {
     private async setState(attr: string, value: number) {
         const map = this.sensorMap[attr];
         const xvalue = map.xform ? map.xform(value) : value
-        this.log.debug(`setState attr=${attr}, uid=${map.uid}, value=${xvalue}`);
-        await this.httpRequest("setdatapointvalue", { uid: map.uid, value: xvalue });
-        this.state[attr] = value;
-        this.checkForChange()
+        var tries = 0;
+        var success = false;
+        while (!success && tries < 3) {
+            tries += 1
+            this.log.debug(`setState attr=${attr}, uid=${map.uid}, value=${xvalue}`);
+            await this.httpRequest("setdatapointvalue", { uid: map.uid, value: xvalue })
+                .then(async () => {
+                    success = true
+                    this.state[attr] = value
+                    await sleep(1000)   // Delay here because the air-con is slow to update
+                    this.checkForChange()
+                })
+                .catch(async error => {
+                    this.log.warn(`Unable to set state for ${attr} to ${value}`)
+                    await sleep(2000)   // Sleep a bit before trying again
+                })
+        }
+        if (!success) {
+            this.log.error(`Unable to set state for ${attr} to ${value} after ${tries} attempts`)
+        }
     }
 
     /**
