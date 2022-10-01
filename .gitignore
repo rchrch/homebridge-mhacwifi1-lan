@@ -1,4 +1,4 @@
-storage/
+config/
 dist/
 node_modules/
 tmp/
