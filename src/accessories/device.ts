@@ -332,8 +332,8 @@ export class MHACWIFI1 extends EventEmitter {
     private async setState(attr: string, value: number) {
         const map = this.sensorMap[attr];
         const xvalue = map.xform ? map.xform(value) : value
-        var tries = 0;
-        var success = false;
+        let tries = 0;
+        let success = false;
         while (!success && tries < 3) {
             tries += 1
             this.log.debug(`setState attr=${attr}, uid=${map.uid}, value=${xvalue}`);
@@ -341,11 +341,11 @@ export class MHACWIFI1 extends EventEmitter {
                 .then(async () => {
                     success = true
                     this.state[attr] = value
-                    await sleep(1000)   // Delay here because the air-con is slow to update
+                    await sleep(1000)   // Delay here because the air-con is slow to update (helps debounce)
                     this.checkForChange()
                 })
                 .catch(async error => {
-                    this.log.warn(`Unable to set state for ${attr} to ${value}`)
+                    this.log.warn(`Unable to set state for ${attr} to ${value}: ${error}`)
                     await sleep(2000)   // Sleep a bit before trying again
                 })
         }
