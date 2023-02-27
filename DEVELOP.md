@@ -13,6 +13,7 @@ node_modules/.bin/homebridge -U config/ -I -Q -D
 
 ## Publishing a new release
 ```bash
+npm run prepublishOnly
 git tag NEW-VERSION
 git push --tags
 npm run prepublishOnly

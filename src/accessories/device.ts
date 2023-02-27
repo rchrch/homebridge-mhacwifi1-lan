@@ -277,7 +277,7 @@ export class MHACWIFI1 extends EventEmitter {
      * Clears all state information and sessionID
      */
     private resetState(): void {
-	this.log.info("Resetting device state")
+        this.log.info("Resetting device state")
         this.sessionID = "";
         this.previousState = {}
         this.state = {}
@@ -376,7 +376,7 @@ export class MHACWIFI1 extends EventEmitter {
 
         const options = {
             hostname: this.host,
-	    timeout: 1000,
+            timeout: 1000,
             path: "/api.cgi",
             method: "POST",
             headers: {
