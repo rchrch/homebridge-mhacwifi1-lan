@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
 
+## [0.4.0] - 2023-02-27
+### Updated
+- Added a timeout parameter to the http client requests to prevent
+  hanging the plugin while waiting from a response from the aircon.
+
+
 ## [0.3.0] - 2022-10-02
 ### Updated
 - Improved http communication to the hardware by adding error handling while
@@ -40,7 +46,8 @@ All notable changes to this project will be documented in this file. This projec
 - Initial release
 
 
-[Unreleased]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.3.0...main
+[Unreleased]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.4.0...main
+[0.4.0]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.3...0.3.0
 [0.2.3]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.2...0.2.3
 [0.2.2]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.1...0.2.2
