@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
 
+## [0.4.1] - 2023-03-02
+### Updated
+- Changed http timeout from 1000ms to 5000ms to reduce state resets
+  in weak wifi conditions.
+
+
 ## [0.4.0] - 2023-02-27
 ### Updated
 - Added a timeout parameter to the http client requests to prevent
@@ -46,7 +52,8 @@ All notable changes to this project will be documented in this file. This projec
 - Initial release
 
 
-[Unreleased]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.4.0...main
+[Unreleased]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.4.1...main
+[0.4.1]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.3...0.3.0
 [0.2.3]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.2...0.2.3
