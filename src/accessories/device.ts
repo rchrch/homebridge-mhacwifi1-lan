@@ -376,7 +376,7 @@ export class MHACWIFI1 extends EventEmitter {
 
         const options = {
             hostname: this.host,
-            timeout: 1000,
+            timeout: 5000,
             path: "/api.cgi",
             method: "POST",
             headers: {
