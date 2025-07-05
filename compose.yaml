@@ -1,0 +1,10 @@
+services:
+  dev:
+    image: node:22
+    container_name: dev
+    user: 1000:1000
+    network_mode: host
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: ["sleep", "infinity"]
