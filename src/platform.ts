@@ -31,8 +31,8 @@ const DISCOVER_DELAY = 10000
  * TODO: add description
  */
 export class MitsubishiHeavyAirconPlatform implements DynamicPlatformPlugin {
-    public readonly Service: typeof Service = this.api.hap.Service
-    public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic
+    public readonly Service: typeof Service
+    public readonly Characteristic: typeof Characteristic
 
     private readonly accessories: PlatformAccessory[] = []
 
@@ -41,6 +41,9 @@ export class MitsubishiHeavyAirconPlatform implements DynamicPlatformPlugin {
         public readonly config: PlatformConfig,
         public readonly api: API,
     ) {
+        this.Service = this.api.hap.Service
+        this.Characteristic = this.api.hap.Characteristic
+
         this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => {
             this.discoverDevice()
         })
