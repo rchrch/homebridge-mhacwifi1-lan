@@ -1,6 +1,6 @@
-import { CharacteristicValue, PlatformAccessory, Service } from 'homebridge';
-import { MitsubishiHeavyAirconPlatform } from '../platform';
-import { MhacModeTypes, MHACWIFI1 } from './device';
+import { CharacteristicValue, PlatformAccessory, Service } from "homebridge";
+import { MitsubishiHeavyAirconPlatform } from "../platform";
+import { MhacModeTypes, MHACWIFI1 } from "./device";
 
 export class AirconService {
 
@@ -71,15 +71,15 @@ export class AirconService {
     updateHomeBridgeState(): void {
         if (!this.device.get.valid())
             return
-        this.syncCharacteristic('Active', this.getActive())
-        this.syncCharacteristic('CoolingThresholdTemperature', this.getCoolingThresholdTemperature())
-        this.syncCharacteristic('CurrentTemperature', this.getCurrentTemperature())
-        this.syncCharacteristic('CurrentHeaterCoolerState', this.getCurrentHeaterCoolerState())
-        this.syncCharacteristic('HeatingThresholdTemperature', this.getHeatingThresholdTemperature())
-        this.syncCharacteristic('LockPhysicalControls', this.getLockPhysicalControls())
-        this.syncCharacteristic('RotationSpeed', this.getRotationSpeed())
-        this.syncCharacteristic('SwingMode', this.getSwingMode())
-        this.syncCharacteristic('TargetHeaterCoolerState', this.getTargetHeaterCoolerState())
+        this.syncCharacteristic("Active", this.getActive())
+        this.syncCharacteristic("CoolingThresholdTemperature", this.getCoolingThresholdTemperature())
+        this.syncCharacteristic("CurrentTemperature", this.getCurrentTemperature())
+        this.syncCharacteristic("CurrentHeaterCoolerState", this.getCurrentHeaterCoolerState())
+        this.syncCharacteristic("HeatingThresholdTemperature", this.getHeatingThresholdTemperature())
+        this.syncCharacteristic("LockPhysicalControls", this.getLockPhysicalControls())
+        this.syncCharacteristic("RotationSpeed", this.getRotationSpeed())
+        this.syncCharacteristic("SwingMode", this.getSwingMode())
+        this.syncCharacteristic("TargetHeaterCoolerState", this.getTargetHeaterCoolerState())
     }
 
     private syncCharacteristic(characteristic: string, value: number): void {

@@ -1,7 +1,7 @@
-import { EventEmitter } from 'events';
-import { Logger } from 'homebridge';
-import * as http from 'http';
-import { setTimeout, setImmediate } from 'timers/promises';
+import { EventEmitter } from "events";
+import { Logger } from "homebridge";
+import * as http from "http";
+import { setTimeout, setImmediate } from "timers/promises";
 
 export enum MhacModeTypes {
     AUTO = 0,
@@ -11,8 +11,8 @@ export enum MhacModeTypes {
     COOL = 4,
 }
 
-export const EVENT_CHANGED = 'changed'
-export const EVENT_UPDATED = 'updated'
+export const EVENT_CHANGED = "changed"
+export const EVENT_UPDATED = "updated"
 
 type CommandResponseType = any;         // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -95,31 +95,31 @@ export class MHACWIFI1 extends EventEmitter {
      */
     public set = {
         active: async (value: number): Promise<void> => {
-            this.setState('active', value);
+            this.setState("active", value);
         },
         fanSpeed: async (value: number): Promise<void> => {
-            this.setState('fanSpeed', value);
+            this.setState("fanSpeed", value);
         },
         locked: async (value: number): Promise<void> => {
-            this.setState('remoteDisable', value);
+            this.setState("remoteDisable", value);
         },
         maxSetpoint: async (value: number): Promise<void> => {
-            this.setState('maxSetpoint', value);
+            this.setState("maxSetpoint", value);
         },
         minSetpoint: async (value: number): Promise<void> => {
-            this.setState('minSetpoint', value);
+            this.setState("minSetpoint", value);
         },
         mode: async (value: number): Promise<void> => {
-            this.setState('mode', value);
+            this.setState("mode", value);
         },
         setpoint: async (value: number): Promise<void> => {
-            this.setState('setpoint', value);
+            this.setState("setpoint", value);
         },
         swingMode: async (value: number): Promise<void> => {
             if (value) {
-                this.setState('verticalPosition', 10);
+                this.setState("verticalPosition", 10);
             } else {
-                this.setState('verticalPosition', 4);
+                this.setState("verticalPosition", 4);
             }
         }
     }
@@ -206,13 +206,13 @@ export class MHACWIFI1 extends EventEmitter {
 
     private async _syncState(): Promise<number> {
         if (!this.sessionID) {
-            this.log.debug('Logging in to obtain a session ID')
+            this.log.debug("Logging in to obtain a session ID")
             await this.login()
                 .then(() => {
-                    this.log.debug('Obtained a new session ID')
+                    this.log.debug("Obtained a new session ID")
                 })
                 .catch(error => {
-                    this.log.error('Unable to authenticate', error)
+                    this.log.error("Unable to authenticate", error)
                     this.resetState()
                 })
             if (this.sessionID) {
@@ -221,7 +221,7 @@ export class MHACWIFI1 extends EventEmitter {
                         this.log.debug(`Available services: ${JSON.stringify(result)}`)
                     })
                     .catch(error => {
-                        this.log.error('Unable to get available services', error)
+                        this.log.error("Unable to get available services", error)
                         this.resetState()
                     })
 
@@ -230,18 +230,18 @@ export class MHACWIFI1 extends EventEmitter {
                         this.log.debug(`Available datapoints: ${JSON.stringify(result)}`)
                     })
                     .catch(error => {
-                        this.log.error('Unable to get available services', error)
+                        this.log.error("Unable to get available services", error)
                         this.resetState()
                     })
 
                 // Set sane defaults
                 await this.set.minSetpoint(this.minSetpoint)
                     .catch(error => {
-                        this.log.error('Unable to get set minSetpoint value', error)
+                        this.log.error("Unable to get set minSetpoint value", error)
                     })
                 await this.set.maxSetpoint(this.maxSetpoint)
                     .catch(error => {
-                        this.log.error('Unable to get set maxSetpoint value', error)
+                        this.log.error("Unable to get set maxSetpoint value", error)
                     })
             }
         }
@@ -258,7 +258,7 @@ export class MHACWIFI1 extends EventEmitter {
                     this.checkForChange()
                 })
                 .catch(error => {
-                    this.log.error('Unable to refresh state', error);
+                    this.log.error("Unable to refresh state", error);
                     this.resetState()
                 });
 
@@ -288,7 +288,7 @@ export class MHACWIFI1 extends EventEmitter {
         sensors.forEach(item => {
             const map = this.sensorMap[item.uid];
             if (!map) {
-                this.log.error('Unhandled sensor item', item);
+                this.log.error("Unhandled sensor item", item);
                 return;
             }
             if (!map.attr) {
@@ -367,7 +367,7 @@ export class MHACWIFI1 extends EventEmitter {
             // Log before adding credentials
             this.log.debug(`httpRequest: ${command} ${JSON.stringify(data)}`)
         }
-        data['sessionID'] = this.sessionID
+        data["sessionID"] = this.sessionID
         const payload = JSON.stringify({ command: command, data: data })
 
         const options = {
@@ -401,8 +401,8 @@ export class MHACWIFI1 extends EventEmitter {
                     }
                 });
             });
-            req.on('timeout', () => {
-                this.log.error(`Http request timeout`)
+            req.on("timeout", () => {
+                this.log.error("Http request timeout")
                 req.destroy()
             });
             req.on("error", (error) => {
@@ -494,18 +494,18 @@ const SensorConfigMap = [
     },
     {
         uid: 9,
-        attr: 'setpoint',
+        attr: "setpoint",
         fromVal: (v: number) => { if (v == 32768) { return 28; } else { return v / 10.0 } },
         toVal: (v: number) => { return v * 10.0 },
     },
     {
         uid: 10,
-        attr: 'currentTemperature',
+        attr: "currentTemperature",
         fromVal: (v: number) => { return v / 10.0 },
     },
     {
         uid: 12,
-        attr: 'remoteDisable',
+        attr: "remoteDisable",
         values: {
             0: "off",
             1: "on",
@@ -513,12 +513,12 @@ const SensorConfigMap = [
     },
     {
         uid: 13,
-        attr: 'onTime',
+        attr: "onTime",
         // Number of hours the unit has been on
     },
     {
         uid: 14,
-        attr: 'alarmStatus',
+        attr: "alarmStatus",
         values: {
             0: "off",
             1: "on",
@@ -526,12 +526,12 @@ const SensorConfigMap = [
     },
     {
         uid: 15,
-        attr: 'errorCode',
+        attr: "errorCode",
         // Error status code
     },
     {
         uid: 34,
-        attr: 'quietMode',
+        attr: "quietMode",
         values: {
             0: "off",
             1: "on",
@@ -539,19 +539,19 @@ const SensorConfigMap = [
     },
     {
         uid: 35,
-        attr: 'minSetpoint',
+        attr: "minSetpoint",
         toVal: (v: number) => { return v * 10.0 },
         fromVal: (v: number) => { return v / 10.0 },
     },
     {
         uid: 36,
-        attr: 'maxSetpoint',
+        attr: "maxSetpoint",
         toVal: (v: number) => { return v * 10.0 },
         fromVal: (v: number) => { return v / 10.0 },
     },
     {
         uid: 37,
-        attr: 'outdoorTemperature',
+        attr: "outdoorTemperature",
         fromVal: (v: number) => { return v / 10.0 },
     },
     { uid: 181 },       // ignore this code

@@ -15,7 +15,7 @@
     "lib/"
   ],
   "rules": {
-    // "quotes": ["error", "double"],
+    "quotes": ["error", "double"],
     "indent": ["error", 4, { "SwitchCase": 1 }],
     // "linebreak-style": ["error", "unix"],
     // "semi": ["error", "always"],

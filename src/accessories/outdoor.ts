@@ -1,6 +1,6 @@
-import { PlatformAccessory, Service } from 'homebridge';
-import { MitsubishiHeavyAirconPlatform } from '../platform';
-import { MHACWIFI1 } from './device';
+import { PlatformAccessory, Service } from "homebridge";
+import { MitsubishiHeavyAirconPlatform } from "../platform";
+import { MHACWIFI1 } from "./device";
 
 export class OutdoorTemperatureService {
 
@@ -26,7 +26,7 @@ export class OutdoorTemperatureService {
     updateHomeBridgeState(): void {
         if (!this.device.get.valid())
             return
-        this.syncCharacteristic('CurrentTemperature', this.getCurrentTemperature())
+        this.syncCharacteristic("CurrentTemperature", this.getCurrentTemperature())
     }
 
     syncCharacteristic(characteristic: string, value: number): void {

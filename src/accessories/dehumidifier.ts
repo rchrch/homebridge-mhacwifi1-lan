@@ -1,6 +1,6 @@
-import { CharacteristicValue, PlatformAccessory, Service } from 'homebridge';
-import { MitsubishiHeavyAirconPlatform } from '../platform';
-import { MhacModeTypes, MHACWIFI1 } from './device';
+import { CharacteristicValue, PlatformAccessory, Service } from "homebridge";
+import { MitsubishiHeavyAirconPlatform } from "../platform";
+import { MhacModeTypes, MHACWIFI1 } from "./device";
 
 export class DehumidifierService {
 
@@ -52,11 +52,11 @@ export class DehumidifierService {
     updateHomeBridgeState(): void {
         if (!this.device.get.valid())
             return
-        this.syncCharacteristic('Active', this.getActive());
-        this.syncCharacteristic('CurrentHumidifierDehumidifierState', this.getCurrentHumidifierDehumidifierState());
-        this.syncCharacteristic('RotationSpeed', this.getRotationSpeed());
-        this.syncCharacteristic('SwingMode', this.getSwingMode());
-        this.syncCharacteristic('TargetHumidifierDehumidifierState', this.getTargetHumidifierDehumidifierState());
+        this.syncCharacteristic("Active", this.getActive());
+        this.syncCharacteristic("CurrentHumidifierDehumidifierState", this.getCurrentHumidifierDehumidifierState());
+        this.syncCharacteristic("RotationSpeed", this.getRotationSpeed());
+        this.syncCharacteristic("SwingMode", this.getSwingMode());
+        this.syncCharacteristic("TargetHumidifierDehumidifierState", this.getTargetHumidifierDehumidifierState());
     }
 
     private syncCharacteristic(characteristic: string, value: number): void {
