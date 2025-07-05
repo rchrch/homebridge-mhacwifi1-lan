@@ -1,7 +1,7 @@
 import { EventEmitter } from "events"
-import { Logger } from "homebridge"
 import * as http from "http"
 import { setTimeout, setImmediate } from "timers/promises"
+import { Logger } from "homebridge"
 
 export enum MhacModeTypes {
     AUTO = 0,
@@ -316,7 +316,9 @@ export class MHACWIFI1 extends EventEmitter {
             }
         })
         if (changed) {
-            await setImmediate(() => { this.emit(EVENT_UPDATED) })
+            await setImmediate(() => {
+                this.emit(EVENT_UPDATED)
+            })
         }
     }
 
