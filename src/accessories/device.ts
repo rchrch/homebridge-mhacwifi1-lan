@@ -121,7 +121,7 @@ export class MHACWIFI1 extends EventEmitter {
             } else {
                 this.setState("verticalPosition", 4)
             }
-        }
+        },
     }
 
     /**
@@ -377,8 +377,8 @@ export class MHACWIFI1 extends EventEmitter {
             method: "POST",
             headers: {
                 "Content-Length": payload.length,
-                "Content-Type": "application/json"
-            }
+                "Content-Type": "application/json",
+            },
         }
 
         return new Promise<CommandResponseType>((resolve, reject) => {
@@ -450,7 +450,7 @@ const SensorConfigMap = [
         values: {
             0: "off",
             1: "on",
-        }
+        },
     },
     {
         uid: 2,
@@ -471,7 +471,7 @@ const SensorConfigMap = [
             "low": 2,
             "medium": 3,
             "high": 4,
-        }
+        },
     },
     {
         uid: 5,
@@ -489,8 +489,8 @@ const SensorConfigMap = [
             "pos-9": 9,
             "swing": 10,
             "swirl": 11,
-            "wide": 12
-        }
+            "wide": 12,
+        },
     },
     {
         uid: 9,
@@ -509,7 +509,7 @@ const SensorConfigMap = [
         values: {
             0: "off",
             1: "on",
-        }
+        },
     },
     {
         uid: 13,
@@ -522,7 +522,7 @@ const SensorConfigMap = [
         values: {
             0: "off",
             1: "on",
-        }
+        },
     },
     {
         uid: 15,
@@ -535,7 +535,7 @@ const SensorConfigMap = [
         values: {
             0: "off",
             1: "on",
-        }
+        },
     },
     {
         uid: 35,

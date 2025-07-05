@@ -9,7 +9,7 @@ export class OutdoorTemperatureService {
     constructor(
         private readonly platform: MitsubishiHeavyAirconPlatform,
         accessory: PlatformAccessory,
-        private readonly device: MHACWIFI1
+        private readonly device: MHACWIFI1,
     ) {
         const Characteristic = platform.Characteristic
 

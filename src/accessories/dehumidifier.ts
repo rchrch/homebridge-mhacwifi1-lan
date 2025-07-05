@@ -9,7 +9,7 @@ export class DehumidifierService {
     constructor(
         private readonly platform: MitsubishiHeavyAirconPlatform,
         accessory: PlatformAccessory,
-        private readonly device: MHACWIFI1
+        private readonly device: MHACWIFI1,
     ) {
         const Characteristic = platform.Characteristic
 
@@ -42,7 +42,7 @@ export class DehumidifierService {
             .setProps({
                 minValue: Characteristic.TargetHumidifierDehumidifierState.DEHUMIDIFIER,
                 maxValue: Characteristic.TargetHumidifierDehumidifierState.DEHUMIDIFIER,
-                validValues: [Characteristic.TargetHumidifierDehumidifierState.DEHUMIDIFIER]
+                validValues: [Characteristic.TargetHumidifierDehumidifierState.DEHUMIDIFIER],
             })
             .onGet(this.getTargetHumidifierDehumidifierState.bind(this))
             .onSet(this.setTargetHumidifierDehumidifierState.bind(this))

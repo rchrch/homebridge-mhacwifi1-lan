@@ -9,7 +9,7 @@ export class AirconService {
     constructor(
         private readonly platform: MitsubishiHeavyAirconPlatform,
         private readonly accessory: PlatformAccessory,
-        private readonly device: MHACWIFI1
+        private readonly device: MHACWIFI1,
     ) {
         const Characteristic = platform.Characteristic
 
