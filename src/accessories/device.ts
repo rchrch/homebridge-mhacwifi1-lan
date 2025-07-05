@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { Logger } from 'homebridge';
 import * as http from 'http';
-import sleep from 'sleep-promise';
+import { setTimeout, setImmediate } from 'timers/promises';
 
 export enum MhacModeTypes {
     AUTO = 0,
@@ -42,7 +42,7 @@ type SensorType = {
 export class MHACWIFI1 extends EventEmitter {
 
     private sessionID = ""
-    private syncTimeout: NodeJS.Timeout | null = null
+    private enabled: boolean = true
 
     private sensorMap: any = {}             // eslint-disable-line @typescript-eslint/no-explicit-any
     private previousState: any = {}         // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -128,16 +128,7 @@ export class MHACWIFI1 extends EventEmitter {
      * Enables periodic timer for polling all device sensor states
      */
     public startSynchronization(): void {
-        setImmediate(() => { this.syncState() });
-    }
-
-    /**
-     * Stops the periodic polling for sensor states
-     */
-    public stopSynchronization(): void {
-        if (this.syncTimeout)
-            clearTimeout(this.syncTimeout);
-        this.syncTimeout = null;
+        this.syncState()
     }
 
     /**
@@ -207,6 +198,13 @@ export class MHACWIFI1 extends EventEmitter {
      * Reads all sensors values from the device and caches them into the `state` variable.
      */
     private async syncState() {
+        while (this.enabled) {
+            const waitTime = await this._syncState()
+            await setTimeout(waitTime)
+        }
+    }
+
+    private async _syncState(): Promise<number> {
         if (!this.sessionID) {
             this.log.debug('Logging in to obtain a session ID')
             await this.login()
@@ -248,8 +246,6 @@ export class MHACWIFI1 extends EventEmitter {
             }
         }
 
-        let syncPeriod = this.syncPeriod
-
         if (this.sessionID) {
             // this.log.debug('Refreshing state')
             const start = Date.now()
@@ -265,12 +261,12 @@ export class MHACWIFI1 extends EventEmitter {
                     this.log.error('Unable to refresh state', error);
                     this.resetState()
                 });
+
+            return this.syncPeriod
         } else {
             // Not logged in. slow down the polling
-            syncPeriod = 30000
+            return 30000
         }
-
-        this.syncTimeout = setTimeout(async () => { this.syncState() }, syncPeriod)
     }
 
     /**
@@ -309,7 +305,7 @@ export class MHACWIFI1 extends EventEmitter {
      * value, and new value.  Emits a generic EVENT_UPDATED property if any property
      * values have changed.
      */
-    private checkForChange() {
+    private async checkForChange() {
         let changed = false;
         Object.keys(this.state).forEach((attr) => {
             if (this.state[attr] != this.previousState[attr]) {
@@ -320,7 +316,7 @@ export class MHACWIFI1 extends EventEmitter {
             }
         })
         if (changed) {
-            setTimeout(() => { this.emit(EVENT_UPDATED); }, 0)
+            await setImmediate(() => { this.emit(EVENT_UPDATED) })
         }
     }
 
@@ -342,12 +338,12 @@ export class MHACWIFI1 extends EventEmitter {
                 .then(async () => {
                     success = true
                     this.state[attr] = value
-                    await sleep(1000)   // Delay here because the air-con is slow to update (helps debounce)
+                    await setTimeout(1000)   // Delay here because the air-con is slow to update (helps debounce)
                     this.checkForChange()
                 })
                 .catch(async error => {
                     this.log.warn(`Unable to set state for ${attr} to ${value}: ${error}`)
-                    await sleep(2000)   // Sleep a bit before trying again
+                    await setTimeout(2000)   // Sleep a bit before trying again
                 })
         }
         if (!success) {
