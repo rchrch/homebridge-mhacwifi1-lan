@@ -50,8 +50,9 @@ export class DehumidifierService {
     }
 
     updateHomeBridgeState(): void {
-        if (!this.device.get.valid())
+        if (!this.device.get.valid()) {
             return
+        }
         this.syncCharacteristic("Active", this.getActive())
         this.syncCharacteristic("CurrentHumidifierDehumidifierState", this.getCurrentHumidifierDehumidifierState())
         this.syncCharacteristic("RotationSpeed", this.getRotationSpeed())
@@ -67,8 +68,9 @@ export class DehumidifierService {
     }
 
     private checkValid(): void {
-        if (!this.device.get.valid())
+        if (!this.device.get.valid()) {
             throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE)
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////

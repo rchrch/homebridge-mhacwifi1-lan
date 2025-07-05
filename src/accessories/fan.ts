@@ -35,8 +35,9 @@ export class FanService {
     }
 
     updateHomeBridgeState(): void {
-        if (!this.device.get.valid())
+        if (!this.device.get.valid()) {
             return
+        }
         this.syncCharacteristic("Active", this.getActive())
         this.syncCharacteristic("RotationSpeed", this.getRotationSpeed())
         this.syncCharacteristic("SwingMode", this.getSwingMode())
@@ -50,8 +51,9 @@ export class FanService {
     }
 
     private checkValid():  void {
-        if (!this.device.get.valid())
+        if (!this.device.get.valid()) {
             throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE)
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////

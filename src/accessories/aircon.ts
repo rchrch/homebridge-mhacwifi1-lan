@@ -69,8 +69,9 @@ export class AirconService {
     }
 
     updateHomeBridgeState(): void {
-        if (!this.device.get.valid())
+        if (!this.device.get.valid()){
             return
+        }
         this.syncCharacteristic("Active", this.getActive())
         this.syncCharacteristic("CoolingThresholdTemperature", this.getCoolingThresholdTemperature())
         this.syncCharacteristic("CurrentTemperature", this.getCurrentTemperature())
@@ -90,8 +91,9 @@ export class AirconService {
     }
 
     private checkValid(): void {
-        if (!this.device.get.valid())
+        if (!this.device.get.valid()) {
             throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE)
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////

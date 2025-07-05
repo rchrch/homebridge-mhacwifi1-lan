@@ -24,8 +24,9 @@ export class OutdoorTemperatureService {
     }
 
     updateHomeBridgeState(): void {
-        if (!this.device.get.valid())
+        if (!this.device.get.valid()) {
             return
+        }
         this.syncCharacteristic("CurrentTemperature", this.getCurrentTemperature())
     }
 
@@ -37,8 +38,9 @@ export class OutdoorTemperatureService {
     }
 
     private checkValid(): void {
-        if (!this.device.get.valid())
+        if (!this.device.get.valid()) {
             throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE)
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
