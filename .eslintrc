@@ -26,8 +26,8 @@
     "curly": ["error", "all"],
 
     "import/order": ["warn", { "alphabetize": { "order": "asc" }, "newlines-between": "never" }],
-    // "import/prefer-default-export": "off",
-    // "import-newlines/enforce": ["error", 3],
+    "import/prefer-default-export": "off",
+    "import-newlines/enforce": ["error", 3],
 
     // "@typescript-eslint/no-unsafe-declaration-merging": "off",
     // "@typescript-eslint/no-non-null-assertion": "off", // currently disabled, hap-nodejs has some bad typing (like getCharacteristic) for this to be enabled
