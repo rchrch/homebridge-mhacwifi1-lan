@@ -367,7 +367,7 @@ export class MHACWIFI1 extends EventEmitter {
             // Log before adding credentials
             this.log.debug(`httpRequest: ${command} ${JSON.stringify(data)}`)
         }
-        data["sessionID"] = this.sessionID
+        data.sessionID = this.sessionID
         const payload = JSON.stringify({ command: command, data: data })
 
         const options = {

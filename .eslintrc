@@ -21,7 +21,7 @@
     "semi": ["error", "never"],
 
     "comma-dangle": ["error", "always-multiline"],
-    // "dot-notation": "error",
+    "dot-notation": "error",
     // "eqeqeq": ["error", "always", {"null":  "ignore"}],
     // "curly": ["error", "all"],
     // "brace-style": ["error"],
