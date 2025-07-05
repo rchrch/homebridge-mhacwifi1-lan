@@ -1,17 +1,17 @@
-import { PlatformAccessory, Service } from "homebridge";
-import { MitsubishiHeavyAirconPlatform } from "../platform";
-import { MHACWIFI1 } from "./device";
+import { PlatformAccessory, Service } from "homebridge"
+import { MitsubishiHeavyAirconPlatform } from "../platform"
+import { MHACWIFI1 } from "./device"
 
 export class OutdoorTemperatureService {
 
-    private service: Service;
+    private service: Service
 
     constructor(
         private readonly platform: MitsubishiHeavyAirconPlatform,
         accessory: PlatformAccessory,
         private readonly device: MHACWIFI1
     ) {
-        const Characteristic = platform.Characteristic;
+        const Characteristic = platform.Characteristic
 
         // Create the outdoor temperature service
         // Implemented characteristics:
