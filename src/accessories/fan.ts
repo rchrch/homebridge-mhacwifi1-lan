@@ -43,7 +43,7 @@ export class FanService {
     }
 
     syncCharacteristic(characteristic: string, value: number): void {
-        if (this.service.getCharacteristic(this.platform.Characteristic[characteristic]).value != value) {
+        if (this.service.getCharacteristic(this.platform.Characteristic[characteristic]).value !== value) {
             this.platform.log.debug(`Updating homebridge characteristics Fan.${characteristic} => ${value}`)
             this.service.getCharacteristic(this.platform.Characteristic[characteristic]).updateValue(value)
         }
@@ -59,7 +59,7 @@ export class FanService {
         this.checkValid()
         const active = this.device.get.active()
         const mode = this.device.get.mode()
-        return (active && mode == MhacModeTypes.FAN) ? 1 : 0
+        return (active && mode === MhacModeTypes.FAN) ? 1 : 0
     }
 
     private async setActive(value: CharacteristicValue) {

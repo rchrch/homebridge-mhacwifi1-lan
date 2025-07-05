@@ -83,7 +83,7 @@ export class AirconService {
     }
 
     private syncCharacteristic(characteristic: string, value: number): void {
-        if (this.service.getCharacteristic(this.platform.Characteristic[characteristic]).value != value) {
+        if (this.service.getCharacteristic(this.platform.Characteristic[characteristic]).value !== value) {
             this.platform.log.debug(`Updating homebridge characteristics HeaterCooler.${characteristic} => ${value}`)
             this.service.getCharacteristic(this.platform.Characteristic[characteristic]).updateValue(value)
         }
@@ -131,21 +131,21 @@ export class AirconService {
         const currentTemperature = this.device.get.currentTemperature()
         const setpoint = this.device.get.setpoint()
 
-        if (mode == MhacModeTypes.AUTO) {
+        if (mode === MhacModeTypes.AUTO) {
             if (currentTemperature > setpoint) {
                 currentState = characteristic.CurrentHeaterCoolerState.COOLING
             } else {
                 currentState = characteristic.CurrentHeaterCoolerState.HEATING
             }
-        } else if (mode == MhacModeTypes.HEAT) {
+        } else if (mode === MhacModeTypes.HEAT) {
             if (currentTemperature < setpoint) {
                 currentState = characteristic.CurrentHeaterCoolerState.HEATING
             } else {
                 currentState = characteristic.CurrentHeaterCoolerState.IDLE
             }
-        } else if (mode == MhacModeTypes.DRY) {
+        } else if (mode === MhacModeTypes.DRY) {
             currentState = characteristic.CurrentHeaterCoolerState.INACTIVE
-        } else if (mode == MhacModeTypes.FAN) {
+        } else if (mode === MhacModeTypes.FAN) {
             currentState = characteristic.CurrentHeaterCoolerState.INACTIVE
         } else {   // state.mode == MhacModeTypes.COOL
             if (currentTemperature > setpoint) {

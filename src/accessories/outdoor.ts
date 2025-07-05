@@ -30,7 +30,7 @@ export class OutdoorTemperatureService {
     }
 
     syncCharacteristic(characteristic: string, value: number): void {
-        if (this.service.getCharacteristic(this.platform.Characteristic[characteristic]).value != value) {
+        if (this.service.getCharacteristic(this.platform.Characteristic[characteristic]).value !== value) {
             this.platform.log.debug(`Updating homebridge characteristics TemperatureSensor.${characteristic} => ${value}`)
             this.service.getCharacteristic(this.platform.Characteristic[characteristic]).updateValue(value)
         }

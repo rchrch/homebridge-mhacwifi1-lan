@@ -85,7 +85,7 @@ export class MHACWIFI1 extends EventEmitter {
         mode: (): number => this.state.mode,
         outdoorTemperature: (): number => this.state.outdoorTemperature,
         setpoint: (): number => this.state.setpoint,
-        swingMode: (): number => (this.state.verticalPosition == 10) ? 1 : 0,
+        swingMode: (): number => (this.state.verticalPosition === 10) ? 1 : 0,
         valid: (): boolean => typeof this.state.active !== "undefined",
     }
 
@@ -308,7 +308,7 @@ export class MHACWIFI1 extends EventEmitter {
     private async checkForChange() {
         let changed = false
         Object.keys(this.state).forEach((attr) => {
-            if (this.state[attr] != this.previousState[attr]) {
+            if (this.state[attr] !== this.previousState[attr]) {
                 changed = true
                 this.log.info(`State change for ${attr}  ${this.previousState[attr]} => ${this.state[attr]}`)
                 this.emit(EVENT_CHANGED, attr, this.previousState[attr], this.state[attr])
@@ -363,7 +363,7 @@ export class MHACWIFI1 extends EventEmitter {
      * @returns         JSON data returned by the device
      */
     private httpRequest(command: string, data: Record<string, unknown> = {}) {
-        if (command != "getdatapointvalue") {
+        if (command !== "getdatapointvalue") {
             // Log before adding credentials
             this.log.debug(`httpRequest: ${command} ${JSON.stringify(data)}`)
         }
@@ -383,7 +383,7 @@ export class MHACWIFI1 extends EventEmitter {
 
         return new Promise<CommandResponseType>((resolve, reject) => {
             const req = http.request(options, (res) => {
-                if (res.statusCode != 200) {
+                if (res.statusCode !== 200) {
                     this.log.debug(`Received http error code ${res.statusCode} for ${command}`)
                     reject({ code: res.statusCode, message: "Invalid HTTP response" })
                 }
@@ -495,7 +495,7 @@ const SensorConfigMap = [
     {
         uid: 9,
         attr: "setpoint",
-        fromVal: (v: number) => { if (v == 32768) { return 28 } else { return v / 10.0 } },
+        fromVal: (v: number) => { if (v === 32768) { return 28 } else { return v / 10.0 } },
         toVal: (v: number) => { return v * 10.0 },
     },
     {

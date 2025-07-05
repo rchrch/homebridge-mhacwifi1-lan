@@ -60,7 +60,7 @@ export class DehumidifierService {
     }
 
     private syncCharacteristic(characteristic: string, value: number): void {
-        if (this.service.getCharacteristic(this.platform.Characteristic[characteristic]).value != value) {
+        if (this.service.getCharacteristic(this.platform.Characteristic[characteristic]).value !== value) {
             this.platform.log.debug(`Updating homebridge characteristics Dehumidifier.${characteristic} => ${value}`)
             this.service.getCharacteristic(this.platform.Characteristic[characteristic]).updateValue(value)
         }
@@ -76,7 +76,7 @@ export class DehumidifierService {
         this.checkValid()
         const active = this.device.get.active()
         const mode = this.device.get.mode()
-        return active && mode == MhacModeTypes.DRY ? this.platform.Characteristic.Active.ACTIVE : this.platform.Characteristic.Active.INACTIVE
+        return active && mode === MhacModeTypes.DRY ? this.platform.Characteristic.Active.ACTIVE : this.platform.Characteristic.Active.INACTIVE
     }
 
     private async setActive(value: CharacteristicValue) {
@@ -93,7 +93,7 @@ export class DehumidifierService {
         this.checkValid()
         const active = this.device.get.active()
         const mode = this.device.get.mode()
-        if (active && mode == MhacModeTypes.DRY) {
+        if (active && mode === MhacModeTypes.DRY) {
             return this.platform.Characteristic.CurrentHumidifierDehumidifierState.DEHUMIDIFYING
         } else {
             return this.platform.Characteristic.CurrentHumidifierDehumidifierState.INACTIVE
@@ -105,7 +105,7 @@ export class DehumidifierService {
         this.checkValid()
         const active = this.device.get.active()
         const mode = this.device.get.mode()
-        return (active && mode == MhacModeTypes.DRY) ? 50 : 0
+        return (active && mode === MhacModeTypes.DRY) ? 50 : 0
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ export class DehumidifierService {
     }
 
     private setTargetHumidifierDehumidifierState(value: CharacteristicValue) {
-        if (value != this.platform.Characteristic.TargetHumidifierDehumidifierState.DEHUMIDIFIER) {
+        if (value !== this.platform.Characteristic.TargetHumidifierDehumidifierState.DEHUMIDIFIER) {
             this.platform.log.error(`Invalid state for TargetHumidifierDehumidifierState => ${value}`)
         }
     }
