@@ -526,13 +526,13 @@ const SensorConfigMap = [
     {
         uid: 9,
         attr: "setpoint",
-        fromVal: (v: number) => { if (v === 32768) { return 28 } else { return Math.round(v / 10.0) } },
+        fromVal: (v: number) => { if (v === 32768) { return 24 } else { return Math.round(v / 10.0) } },
         toVal: (v: number) => { return Math.round(v * 10.0) },
     },
     {
         uid: 10,
         attr: "currentTemperature",
-        fromVal: (v: number) => { return v / 10.0 },
+        fromVal: (v: number) => { if (v === 32768) { return 24 } else { return v / 10.0 } },
     },
     {
         uid: 12,
