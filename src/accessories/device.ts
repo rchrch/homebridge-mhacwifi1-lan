@@ -1,6 +1,7 @@
 import { EventEmitter } from "events"
 import * as http from "http"
 import { setTimeout, setImmediate } from "timers/promises"
+import { Mutex } from "async-mutex"
 import { Logger } from "homebridge"
 
 export enum MhacModeTypes {
@@ -43,6 +44,7 @@ export class MHACWIFI1 extends EventEmitter {
 
     private sessionID = ""
     private enabled: boolean = true
+    private mutex = new Mutex()
 
     private sensorMap: any = {}             // eslint-disable-line @typescript-eslint/no-explicit-any
     private previousState: any = {}         // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -56,7 +58,7 @@ export class MHACWIFI1 extends EventEmitter {
         private slowThreshold: number = 500,             // Number of milliseconds before reporting a slow connection
         private minSetpoint: number = 18,                // Minimum value for the setpoint temperature
         private maxSetpoint: number = 30,                // Maximum value for the setpoint temperature
-        private syncPeriod: number = 1000,               // Number of milliseconds between sensor sync requests
+        private syncPeriod: number = 250,                // Number of milliseconds between sensor sync requests
     ) {
         super()
         this.minSetpoint = Math.max(18, minSetpoint)
@@ -104,16 +106,16 @@ export class MHACWIFI1 extends EventEmitter {
             this.setState("remoteDisable", value)
         },
         maxSetpoint: async (value: number): Promise<void> => {
-            this.setState("maxSetpoint", value)
+            this.setState("maxSetpoint", Math.round(value))
         },
         minSetpoint: async (value: number): Promise<void> => {
-            this.setState("minSetpoint", value)
+            this.setState("minSetpoint", Math.round(value))
         },
         mode: async (value: number): Promise<void> => {
             this.setState("mode", value)
         },
         setpoint: async (value: number): Promise<void> => {
-            this.setState("setpoint", value)
+            this.setState("setpoint", Math.round(value))
         },
         swingMode: async (value: number): Promise<void> => {
             if (value) {
@@ -194,6 +196,11 @@ export class MHACWIFI1 extends EventEmitter {
         this.parseState(result.dpval)
     }
 
+    public async refreshDataPoint(uid: number): Promise<void> {
+        const result = await this.httpRequest("getdatapointvalue", { uid: uid })
+        this.parseState([result.dpval])
+    }
+
     /**
      * Reads all sensors values from the device and caches them into the `state` variable.
      */
@@ -247,7 +254,6 @@ export class MHACWIFI1 extends EventEmitter {
         }
 
         if (this.sessionID) {
-            // this.log.debug('Refreshing state')
             const start = Date.now()
             await this.refreshState()
                 .then(() => {
@@ -294,7 +300,10 @@ export class MHACWIFI1 extends EventEmitter {
             if (!map.attr) {
                 return
             }
-            this.state[map.attr] = map.xform ? map.xform(item.value) : item.value
+            const new_value = map.xform ? map.xform(item.value) : item.value
+            if (new_value !== this.state[map.attr]) {
+                this.log.debug(`Updated ${map.attr} for ${new_value}`)
+                this.state[map.attr] = new_value}
         })
     }
 
@@ -325,10 +334,23 @@ export class MHACWIFI1 extends EventEmitter {
     /**
      * Sets the given sensor to the given value
      *
+     * The _setState is wrapped with a mutex to only allow one outstanding
+     * request to the unit at a time as it seems to be single threaded with
+     * processing it's http reuqests.
+     *
      * @param attr  Attribute name
      * @param value Normalized value (will be mapped into device specific value)
      */
     private async setState(attr: string, value: number) {
+        const release = await this.mutex.acquire()
+        try {
+            return await this._setState(attr, value)
+        } finally {
+            release()
+        }
+    }
+
+    private async _setState(attr: string, value: number) {
         const map = this.sensorMap[attr]
         const xvalue = map.xform ? map.xform(value) : value
         let tries = 0
@@ -339,8 +361,15 @@ export class MHACWIFI1 extends EventEmitter {
             await this.httpRequest("setdatapointvalue", { uid: map.uid, value: xvalue })
                 .then(async () => {
                     success = true
-                    this.state[attr] = value
-                    await setTimeout(1000)   // Delay here because the air-con is slow to update (helps debounce)
+                    // Wait for the new value to be updated and returned in status
+                    const end = Date.now() + 5000
+                    while (this.state[attr] !== value && Date.now() < end) {
+                        await this.refreshDataPoint(map.uid)
+                        await setTimeout(100)
+                    }
+                    if (this.state[attr] !== value) {
+                        this.log.warn(`Timeout expired while waiting for new value of ${attr}`)
+                    }
                     this.checkForChange()
                 })
                 .catch(async error => {
@@ -364,8 +393,8 @@ export class MHACWIFI1 extends EventEmitter {
      * @param data      Parameters associated with the command
      * @returns         JSON data returned by the device
      */
-    private httpRequest(command: string, data: Record<string, unknown> = {}) {
-        if (command !== "getdatapointvalue") {
+    private async httpRequest(command: string, data: Record<string, unknown> = {}) {
+        if (command !== "getdatapointvalue" && data.uid !== "all") {
             // Log before adding credentials
             this.log.debug(`httpRequest: ${command} ${JSON.stringify(data)}`)
         }
@@ -497,8 +526,8 @@ const SensorConfigMap = [
     {
         uid: 9,
         attr: "setpoint",
-        fromVal: (v: number) => { if (v === 32768) { return 28 } else { return v / 10.0 } },
-        toVal: (v: number) => { return v * 10.0 },
+        fromVal: (v: number) => { if (v === 32768) { return 28 } else { return Math.round(v / 10.0) } },
+        toVal: (v: number) => { return Math.round(v * 10.0) },
     },
     {
         uid: 10,
@@ -542,14 +571,14 @@ const SensorConfigMap = [
     {
         uid: 35,
         attr: "minSetpoint",
-        toVal: (v: number) => { return v * 10.0 },
-        fromVal: (v: number) => { return v / 10.0 },
+        toVal: (v: number) => { return Math.round(v * 10.0) },
+        fromVal: (v: number) => { return Math.round(v / 10.0) },
     },
     {
         uid: 36,
         attr: "maxSetpoint",
-        toVal: (v: number) => { return v * 10.0 },
-        fromVal: (v: number) => { return v / 10.0 },
+        toVal: (v: number) => { return Math.round(v * 10.0) },
+        fromVal: (v: number) => { return Math.round(v / 10.0) },
     },
     {
         uid: 37,
