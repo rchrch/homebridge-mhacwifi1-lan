@@ -6,7 +6,7 @@
   "homepage": "https://github.com/rchrch/homebridge-mhacwifi1-lan",
   "repository": {
     "type": "git",
-    "url": "git://git@github.com:rchrch/homebridge-mhacwifi1-lan.git"
+    "url": "git://git@github.com/rchrch/homebridge-mhacwifi1-lan.git"
   },
   "bugs": {
     "url": "https://github.com/rchrch/homebridge-mhacwifi1-lan/issues"
