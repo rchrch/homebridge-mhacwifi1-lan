@@ -33,6 +33,7 @@
     "intesis"
   ],
   "dependencies": {
+    "async-mutex": "^0.5.0",
     "node": "^22"
   },
   "devDependencies": {
