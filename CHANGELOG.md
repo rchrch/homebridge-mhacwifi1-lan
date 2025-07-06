@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
 
+## [0.5.0] - 2025-07-06
+### Changed
+- Changed the minimal temperature unit step from 0.5 (default) to 1.  The
+  aircon controller doesn't not support 0.5 degree steps and this would
+  occasionally cause issues.  To completely switch over the device must
+  be removed and readded to your Home App as the state is cached externally
+  from Homebridge.  However, if you don't and a 0.5 degress value is
+  set in the Home App, the value will be rounded to ensure it's compatible.
+### Updated
+- Updated build system to support Homebridge v2
+- Added mutexing around setState calls to prevent conflicting http requests
+  to the aircon controller.
+- Improved state change verification after calling setState
+- Many non-functional  changes related to eslint options
+
+
 ## [0.4.1] - 2023-03-02
 ### Updated
 - Changed http timeout from 1000ms to 5000ms to reduce state resets
@@ -52,7 +68,8 @@ All notable changes to this project will be documented in this file. This projec
 - Initial release
 
 
-[Unreleased]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.4.1...main
+[Unreleased]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.5.0...main
+[0.5.0]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.4.1...main
 [0.4.1]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.2.3...0.3.0
