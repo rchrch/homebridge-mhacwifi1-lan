@@ -35,6 +35,7 @@ export class AirconService {
             .setProps({
                 minValue: this.device.get.minSetpoint(),
                 maxValue: this.device.get.maxSetpoint(),
+                minStep: 1,
             })
             .onGet(this.getCoolingThresholdTemperature.bind(this))
             .onSet(this.setCoolingThresholdTemperature.bind(this))
@@ -46,6 +47,7 @@ export class AirconService {
             .setProps({
                 minValue: this.device.get.minSetpoint(),
                 maxValue: this.device.get.maxSetpoint(),
+                minStep: 1,
             })
             .onGet(this.getHeatingThresholdTemperature.bind(this))
             .onSet(this.setHeatingThresholdTemperature.bind(this))
