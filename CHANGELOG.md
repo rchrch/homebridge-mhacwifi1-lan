@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
 
+## [0.5.1] - 2025-07-07
+### Fixed
+- Handle case where temperature value is reported as 32768 [#13]
+- Removed incorrectly added 'node' package from the dependency list [#25]
+### Changed
+- Added support for reading sensor for horizonal swing [#6, #12]
+
 ## [0.5.0] - 2025-07-06
 ### Changed
 - Changed the minimal temperature unit step from 0.5 (default) to 1.  The
