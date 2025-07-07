@@ -29,6 +29,13 @@ npm run homnebridge
 ```
 
 ## Publishing a new release
+1. Add release notes are added to CHANGELOG
+2. Add line to bottom of CHANGELOG for commit diffs between tags
+3. Update verion number in package.json
+4. Commit CHANGELOG and package.json with commit message for version bump
+5. Tag repo with new version and push tag
+6. Create a release on the project with the text from CHANGELOG
+7. Publish to npm
 ```bash
 npm run prepublishOnly
 git tag NEW-VERSION
