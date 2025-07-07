@@ -75,7 +75,8 @@ All notable changes to this project will be documented in this file. This projec
 - Initial release
 
 
-[Unreleased]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.5.0...main
+[Unreleased]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.5.1...main
+[0.5.1]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.4.1...main
 [0.4.1]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/rchrch/homebridge-mhacwifi1-lan/compare/0.3.0...0.4.0
